@@ -60,6 +60,8 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<SnekartDbContext>();
+    db.Database.Migrate();
+
     if (!db.Products.Any())
     {
         db.Products.AddRange(ProductSeedData.GetSeedProducts());
