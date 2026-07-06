@@ -1,0 +1,6 @@
+@SnekartApi_HostAddress = http://localhost:5084
+
+GET {{SnekartApi_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

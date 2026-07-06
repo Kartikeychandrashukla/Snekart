@@ -1,0 +1,19 @@
+# .NET build artifacts
+bin/
+obj/
+
+# Environment files (secrets)
+.env
+.env.local
+*.env
+
+# Editor/OS
+.vscode/
+.idea/
+.DS_Store
+
+# Business/product notes — not source code, keep out of the repo entirely
+snekart_context.md
+
+# Uploaded files now live in the database (ProductImage table), not disk
+SnekartApi/wwwroot/uploads/
