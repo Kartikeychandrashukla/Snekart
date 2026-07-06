@@ -9,8 +9,13 @@ using SnekartApi.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
+var pgHost = builder.Configuration["PGHOST"];
+var connectionString = pgHost != null
+    ? $"Host={pgHost};Port={builder.Configuration["PGPORT"]};Database={builder.Configuration["PGDATABASE"]};Username={builder.Configuration["PGUSER"]};Password={builder.Configuration["PGPASSWORD"]}"
+    : builder.Configuration.GetConnectionString("DefaultConnection");
+
 builder.Services.AddDbContext<SnekartDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseNpgsql(connectionString));
 
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 builder.Services.AddScoped<IOrderService, OrderService>();
@@ -19,10 +24,12 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped<IProductService, ProductService>();
 
+var allowedOrigin = builder.Configuration["FrontendUrl"] ?? "http://localhost:5173";
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("ReactApp", policy =>
-        policy.WithOrigins("http://localhost:5173")
+        policy.WithOrigins(allowedOrigin)
               .AllowAnyHeader()
               .AllowAnyMethod()
               .AllowCredentials());
@@ -61,11 +68,12 @@ using (var scope = app.Services.CreateScope())
 
     if (!db.Customers.Any(c => c.Level == "admin"))
     {
+        var adminPassword = builder.Configuration["AdminSeedPassword"] ?? "snekart2025";
         db.Customers.Add(new Customer
         {
             Name         = "Admin",
             Email        = "admin@snekart.in",
-            PasswordHash = BCrypt.Net.BCrypt.HashPassword("snekart2025"),
+            PasswordHash = BCrypt.Net.BCrypt.HashPassword(adminPassword),
             Level        = "admin",
             CreatedAt    = DateTime.UtcNow,
         });

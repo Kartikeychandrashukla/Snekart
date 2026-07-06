@@ -1,4 +1,4 @@
-const API_HOST = 'http://localhost:5084'
+const API_HOST = import.meta.env.VITE_API_HOST;
 const BASE_URL = `${API_HOST}/api`
 
 // Central fetch — fires a global event on 401 so RootLayout can redirect.

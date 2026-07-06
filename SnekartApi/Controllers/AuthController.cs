@@ -33,7 +33,7 @@ namespace SnekartApi.Controllers
     {
         HttpOnly = true,
         Secure   = true,
-        SameSite = SameSiteMode.Lax,
+        SameSite = SameSiteMode.None,
         Expires  = DateTimeOffset.UtcNow.AddDays(1),
     });
 
@@ -52,7 +52,7 @@ public async Task<IActionResult> Login([FromBody] AuthRequest req)
     {
         HttpOnly = true,
         Secure   = true,
-        SameSite = SameSiteMode.Lax,
+        SameSite = SameSiteMode.None,
         Expires  = DateTimeOffset.UtcNow.AddDays(1),
     });
 
