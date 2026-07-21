@@ -5,13 +5,16 @@ import App from './App.jsx'
 import { CartProvider } from './context/CartContext.jsx'
 import { AuthProvider } from './context/AuthContext.jsx'
 import { ProductsProvider } from './context/ProductsContext.jsx'
+import { BlogProvider } from './context/BlogContext.jsx'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <AuthProvider>
       <CartProvider>
         <ProductsProvider>
-          <App />
+          <BlogProvider>
+            <App />
+          </BlogProvider>
         </ProductsProvider>
       </CartProvider>
     </AuthProvider>

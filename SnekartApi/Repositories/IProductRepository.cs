@@ -6,6 +6,7 @@ namespace SnekartApi.Repositories
     {
         Task<List<Product>> GetAllAsync();
         Task<Product?> GetByIdAsync(int id);
+        Task<Product?> GetBySlugAsync(string slug);
         Task<List<Product>> GetByIdsAsync(List<int> ids);
         Task AddAsync(Product product);
         Task<bool> UpdateAsync(int id, Product product);

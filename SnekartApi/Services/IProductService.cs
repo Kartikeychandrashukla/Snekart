@@ -6,6 +6,7 @@ namespace SnekartApi.Services
     public interface IProductService
     {
         Task<List<Product>> GetAllProductsAsync();
+        Task<Product?> GetProductBySlugAsync(string slug);
         Task<ProductResult> CreateProductAsync(ProductRequest req);
         Task<ProductResult> UpdateProductAsync(int id, ProductRequest req);
         Task<ProductResult> DeleteProductAsync(int id);

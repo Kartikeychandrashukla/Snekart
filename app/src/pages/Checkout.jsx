@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useCart } from '../context/CartContext'
-import { placeOrder } from '../services/api'
+import { placeOrder, verifyPayment } from '../services/api'
 import Toast from '../components/Toast'
 
 const DELIVERY_CHARGE  = 80
@@ -12,14 +12,32 @@ const initialForm = {
   address: '', city: '', state: '', pincode: '',
 }
 
+// Loads the Razorpay checkout widget once, on demand — no need to pull it in
+// for customers who only ever pay COD.
+let razorpayScriptPromise = null
+function loadRazorpayScript() {
+  if (window.Razorpay) return Promise.resolve(true)
+  if (!razorpayScriptPromise) {
+    razorpayScriptPromise = new Promise(resolve => {
+      const script = document.createElement('script')
+      script.src = 'https://checkout.razorpay.com/v1/checkout.js'
+      script.onload  = () => resolve(true)
+      script.onerror = () => resolve(false)
+      document.body.appendChild(script)
+    })
+  }
+  return razorpayScriptPromise
+}
+
 export default function Checkout() {
   const { items, cartTotal, clearCart } = useCart()
   const navigate = useNavigate()
 
-  const [form,    setForm]    = useState(initialForm)
-  const [errors,  setErrors]  = useState({})
-  const [loading, setLoading] = useState(false)
-  const [toast,   setToast]   = useState(null)
+  const [form,          setForm]          = useState(initialForm)
+  const [errors,        setErrors]        = useState({})
+  const [loading,       setLoading]       = useState(false)
+  const [toast,         setToast]         = useState(null)
+  const [paymentMethod] = useState('COD')
 
   const delivery   = cartTotal >= FREE_ABOVE ? 0 : DELIVERY_CHARGE
   const grandTotal = cartTotal + delivery
@@ -60,13 +78,59 @@ export default function Checkout() {
       const order = await placeOrder({
         items,
         address: form,
+        paymentMethod,
       })
-      clearCart()
-      navigate(`/order-confirmation/${order.orderId}`)
+
+      if (paymentMethod === 'COD') {
+        clearCart()
+        navigate(`/order-confirmation/${order.orderId}`)
+        return
+      }
+
+      await payWithRazorpay(order)
     } catch (err) {
       setLoading(false)
       setToast(err.message)
     }
+  }
+
+  async function payWithRazorpay(order) {
+    const loaded = await loadRazorpayScript()
+    if (!loaded) {
+      setLoading(false)
+      setToast('Could not load payment gateway. Please try again.')
+      return
+    }
+
+    const razorpay = new window.Razorpay({
+      key:      order.razorpayKeyId,
+      order_id: order.razorpayOrderId,
+      amount:   Math.round(order.total * 100),
+      currency: 'INR',
+      name:     'Snekart',
+      prefill:  { name: form.name, contact: form.phone, email: form.email },
+      handler: async (response) => {
+        try {
+          await verifyPayment(order.orderId, {
+            razorpayOrderId:   response.razorpay_order_id,
+            razorpayPaymentId: response.razorpay_payment_id,
+            razorpaySignature: response.razorpay_signature,
+          })
+          clearCart()
+          navigate(`/order-confirmation/${order.orderId}`)
+        } catch (err) {
+          setLoading(false)
+          setToast(err.message)
+        }
+      },
+      modal: {
+        ondismiss: () => {
+          setLoading(false)
+          setToast('Payment was not completed. You can try again.')
+        },
+      },
+    })
+    razorpay.open()
   }
 
   function handleChange(e) {
@@ -110,8 +174,8 @@ export default function Checkout() {
             {/* Payment */}
             <div className="bg-white rounded-2xl border border-taupe p-6 mt-4">
               <h2 className="text-forest font-bold text-lg mb-4">Payment Method</h2>
-              <div className="flex items-center gap-3 bg-cream rounded-xl px-4 py-3 border border-forest">
-                <div className="w-4 h-4 rounded-full border-2 border-forest flex items-center justify-center">
+              <div className="flex items-center gap-3 rounded-xl px-4 py-3 border border-forest bg-cream">
+                <div className="w-4 h-4 rounded-full border-2 border-forest flex items-center justify-center shrink-0">
                   <div className="w-2 h-2 rounded-full bg-forest"/>
                 </div>
                 <div>
@@ -119,9 +183,7 @@ export default function Checkout() {
                   <p className="text-gray-400 text-xs">Pay when your kit arrives at your door</p>
                 </div>
               </div>
-              <p className="text-gray-300 text-xs mt-3">
-                More payment options (UPI, Card) coming soon.
-              </p>
+              <p className="text-gray-300 text-xs mt-3">Online payment is coming soon.</p>
             </div>
           </div>
 

@@ -18,7 +18,24 @@ namespace SnekartApi.Controllers
             var customerId = HttpContext.Items["CustomerId"] as int?;
             var result = await _service.PlaceOrderAsync(req, customerId);
             if (!result.Success) return BadRequest(new { message = result.Message });
-            return Ok(new { result.Order!.Id, result.Order.PlacedAt, result.Order.Total, message = result.Message });
+            return Ok(new
+            {
+                result.Order!.Id,
+                result.Order.PlacedAt,
+                result.Order.Total,
+                message = result.Message,
+                razorpayOrderId = result.RazorpayOrderId,
+                razorpayKeyId = result.RazorpayKeyId,
+            });
+        }
+
+        [HttpPost("{id}/verify-payment")]
+        public async Task<IActionResult> VerifyPayment(string id, [FromBody] VerifyPaymentRequest req)
+        {
+            var result = await _service.VerifyPaymentAsync(id, req.RazorpayPaymentId, req.RazorpaySignature);
+            if (result.NotFound) return NotFound(new { message = result.Message });
+            if (!result.Success) return BadRequest(new { message = result.Message });
+            return Ok(new { result.Order!.Id, status = result.Order.PaymentStatus, message = result.Message });
         }
 
         [HttpGet]

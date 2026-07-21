@@ -1,78 +1,26 @@
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
+import { useBlog } from '../context/BlogContext'
 
-const posts = [
-  {
-    id: 1,
-    category: 'Self-Care',
-    categoryBg: 'bg-lavender text-forest',
-    title: 'Why your emotions deserve a ritual, not just a reaction',
-    excerpt: "We're taught to manage emotions — suppress, redirect, move on. But what if honouring them was the healthier choice? Here's what the research says.",
-    author: 'Snekart Team',
-    date: 'Jun 15, 2025',
-    readTime: '4 min read',
-    image: 'https://picsum.photos/seed/blog1/600/400',
-  },
-  {
-    id: 2,
-    category: 'Gifting',
-    categoryBg: 'bg-peach text-forest',
-    title: "The problem with gifting in India — and how we're fixing it",
-    excerpt: "Chocolates and dry fruits. Every time. There's a better way to show someone you actually understand what they're going through.",
-    author: 'Snekart Team',
-    date: 'Jun 22, 2025',
-    readTime: '5 min read',
-    image: 'https://picsum.photos/seed/blog2/600/400',
-  },
-  {
-    id: 3,
-    category: 'Anxiety',
-    categoryBg: 'bg-dusty text-forest',
-    title: '5 things to do when anxiety hits at 2am',
-    excerpt: "No phone. No doomscrolling. Just five things that genuinely help when your mind won't stop — from scent to breath to the right kind of distraction.",
-    author: 'Snekart Team',
-    date: 'Jul 1, 2025',
-    readTime: '3 min read',
-    image: 'https://picsum.photos/seed/blog3/600/400',
-  },
-  {
-    id: 4,
-    category: 'Community',
-    categoryBg: 'bg-sage/60 text-forest',
-    title: "Building India's first Emotion Community — why and how",
-    excerpt: "Most brands build followings. We want to build something rarer — a space where people feel genuinely seen, regardless of what they're going through.",
-    author: 'Snekart Team',
-    date: 'Jul 5, 2025',
-    readTime: '6 min read',
-    image: 'https://picsum.photos/seed/blog4/600/400',
-  },
-  {
-    id: 5,
-    category: 'Self-Care',
-    categoryBg: 'bg-lavender text-forest',
-    title: "The science behind scent and mood — what's actually happening",
-    excerpt: "Why does a certain candle make you feel calm instantly? Why does lavender work? We break down the neuroscience without the jargon.",
-    author: 'Snekart Team',
-    date: 'Jul 10, 2025',
-    readTime: '5 min read',
-    image: 'https://picsum.photos/seed/blog5/600/400',
-  },
-  {
-    id: 6,
-    category: 'Gifting',
-    categoryBg: 'bg-peach text-forest',
-    title: 'How to gift someone going through a hard time',
-    excerpt: "It's not about the price tag. It's about showing up correctly. A guide to thoughtful gifting for loss, heartbreak, burnout, and everything in between.",
-    author: 'Snekart Team',
-    date: 'Jul 15, 2025',
-    readTime: '4 min read',
-    image: 'https://picsum.photos/seed/blog6/600/400',
-  },
-]
+// ── Shared style map — also used by BlogPostDetail ─────────────────────────
+export const categoryColor = {
+  'Self-Care':             'bg-lavender text-forest',
+  'Gifting':               'bg-peach text-forest',
+  'Community':             'bg-sage/60 text-forest',
+  'New Arrivals':          'bg-taupe text-forest',
+  'Soft Life':             'bg-warm text-forest',
+  'Main Character Energy': 'bg-forest text-white',
+}
 
-const categories = ['All', 'Self-Care', 'Gifting', 'Anxiety', 'Community']
+function formatDate(iso) {
+  return new Date(iso).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })
+}
 
 export default function Blog() {
+  const { posts, loading } = useBlog()
   const [activeCategory, setActiveCategory] = useState('All')
+
+  const categories = ['All', ...new Set(posts.map(p => p.category))]
 
   const filtered = activeCategory === 'All'
     ? posts
@@ -95,62 +43,84 @@ export default function Blog() {
 
       <div className="max-w-7xl mx-auto px-8 py-8">
 
-        {/* ── Category filter ─────────────────────────────────────────── */}
-        <div className="flex gap-2 flex-wrap mb-10">
-          {categories.map(c => (
-            <button
-              key={c}
-              onClick={() => setActiveCategory(c)}
-              className={`text-sm px-4 py-2 rounded-full border transition-colors ${
-                activeCategory === c
-                  ? 'bg-forest text-white border-forest'
-                  : 'bg-white text-gray-500 border-taupe hover:border-forest hover:text-forest'
-              }`}
-            >
-              {c}
-            </button>
-          ))}
-        </div>
-
-        {filtered.length === 0 ? (
-          <p className="text-gray-400 text-center py-20">No posts in this category yet.</p>
+        {loading ? (
+          <p className="text-gray-400 text-center py-20">Loading posts...</p>
         ) : (
           <>
-            {/* ── Featured post ──────────────────────────────────────── */}
-            {featured && (
-              <div className="bg-white rounded-2xl border border-taupe overflow-hidden mb-8 grid grid-cols-1 md:grid-cols-2">
-                <div className="h-64 md:h-auto overflow-hidden">
-                  <img
-                    src={featured.image}
-                    alt={featured.title}
-                    className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-                  />
-                </div>
-                <div className="p-8 flex flex-col justify-center">
-                  <span className={`text-xs font-semibold px-3 py-1 rounded-full w-fit mb-4 ${featured.categoryBg}`}>
-                    {featured.category}
-                  </span>
-                  <h2 className="text-forest font-bold text-2xl mb-3 leading-snug">{featured.title}</h2>
-                  <p className="text-gray-400 text-sm leading-relaxed mb-6">{featured.excerpt}</p>
-                  <div className="flex items-center justify-between">
-                    <div className="text-xs text-gray-300">
-                      {featured.author} · {featured.date} · {featured.readTime}
-                    </div>
-                    <button className="text-forest text-sm font-semibold hover:underline">
-                      Read →
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )}
+            {/* ── Category filter ─────────────────────────────────────── */}
+            <div className="flex gap-2 flex-wrap mb-10">
+              {categories.map(c => (
+                <button
+                  key={c}
+                  onClick={() => setActiveCategory(c)}
+                  className={`text-sm px-4 py-2 rounded-full border transition-colors ${
+                    activeCategory === c
+                      ? 'bg-forest text-white border-forest'
+                      : 'bg-white text-gray-500 border-taupe hover:border-forest hover:text-forest'
+                  }`}
+                >
+                  {c}
+                </button>
+              ))}
+            </div>
 
-            {/* ── Rest of posts ──────────────────────────────────────── */}
-            {rest.length > 0 && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {rest.map(post => (
-                  <PostCard key={post.id} post={post} />
-                ))}
-              </div>
+            {filtered.length === 0 ? (
+              <p className="text-gray-400 text-center py-20">No posts in this category yet.</p>
+            ) : (
+              <>
+                {/* ── Featured post ──────────────────────────────────── */}
+                {featured && (
+                  <Link
+                    to={`/blog/${featured.slug}`}
+                    className="block bg-white rounded-2xl border border-taupe overflow-hidden mb-8 grid grid-cols-1 md:grid-cols-2 hover:shadow-md transition-shadow"
+                  >
+                    <div className="h-64 md:h-auto overflow-hidden relative">
+                      {featured.image ? (
+                        <img
+                          src={featured.image}
+                          alt={featured.title}
+                          className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                        />
+                      ) : (
+                        <>
+                          <video
+                            src={featured.video}
+                            muted
+                            playsInline
+                            preload="metadata"
+                            className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                          />
+                          <span className="absolute inset-0 flex items-center justify-center">
+                            <span className="w-12 h-12 rounded-full bg-black/40 text-white flex items-center justify-center text-base">▶</span>
+                          </span>
+                        </>
+                      )}
+                    </div>
+                    <div className="p-8 flex flex-col justify-center">
+                      <span className={`text-xs font-semibold px-3 py-1 rounded-full w-fit mb-4 ${categoryColor[featured.category] ?? 'bg-taupe text-forest'}`}>
+                        {featured.category}
+                      </span>
+                      <h2 className="text-forest font-bold text-2xl mb-3 leading-snug">{featured.title}</h2>
+                      <p className="text-gray-400 text-sm leading-relaxed mb-6">{featured.excerpt}</p>
+                      <div className="flex items-center justify-between">
+                        <div className="text-xs text-gray-300">
+                          {featured.author} · {formatDate(featured.publishedAt)} · {featured.readTime}
+                        </div>
+                        <span className="text-forest text-sm font-semibold">Read →</span>
+                      </div>
+                    </div>
+                  </Link>
+                )}
+
+                {/* ── Rest of posts ──────────────────────────────────── */}
+                {rest.length > 0 && (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {rest.map(post => (
+                      <PostCard key={post.id} post={post} />
+                    ))}
+                  </div>
+                )}
+              </>
             )}
           </>
         )}
@@ -181,25 +151,43 @@ export default function Blog() {
 
 function PostCard({ post }) {
   return (
-    <div className="bg-white rounded-2xl border border-taupe overflow-hidden flex flex-col hover:shadow-md transition-shadow">
-      <div className="h-48 overflow-hidden">
-        <img
-          src={post.image}
-          alt={post.title}
-          className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-        />
+    <Link
+      to={`/blog/${post.slug}`}
+      className="bg-white rounded-2xl border border-taupe overflow-hidden flex flex-col hover:shadow-md transition-shadow"
+    >
+      <div className="h-48 overflow-hidden relative">
+        {post.image ? (
+          <img
+            src={post.image}
+            alt={post.title}
+            className="w-full h-full  absolute inset-0 object-cover hover:scale-105 transition-transform duration-300"
+          />
+        ) : (
+          <>
+            <video
+              src={post.video}
+              muted
+              playsInline
+              preload="metadata"
+              className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+            />
+            <span className="absolute inset-0 flex items-center justify-center">
+              <span className="w-10 h-10 rounded-full bg-black/40 text-white flex items-center justify-center text-sm">▶</span>
+            </span>
+          </>
+        )}
       </div>
       <div className="p-5 flex flex-col flex-1">
-        <span className={`text-xs font-semibold px-3 py-1 rounded-full w-fit mb-3 ${post.categoryBg}`}>
+        <span className={`text-xs font-semibold px-3 py-1 rounded-full w-fit mb-3 ${categoryColor[post.category] ?? 'bg-taupe text-forest'}`}>
           {post.category}
         </span>
         <h3 className="text-forest font-semibold text-base leading-snug mb-2">{post.title}</h3>
         <p className="text-gray-400 text-xs leading-relaxed flex-1 mb-4">{post.excerpt}</p>
         <div className="flex items-center justify-between mt-auto pt-3 border-t border-taupe">
-          <span className="text-gray-300 text-xs">{post.date} · {post.readTime}</span>
-          <button className="text-forest text-xs font-semibold hover:underline">Read →</button>
+          <span className="text-gray-300 text-xs">{formatDate(post.publishedAt)} · {post.readTime}</span>
+          <span className="text-forest text-xs font-semibold">Read →</span>
         </div>
       </div>
-    </div>
+    </Link>
   )
 }

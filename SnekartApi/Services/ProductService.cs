@@ -26,6 +26,11 @@ namespace SnekartApi.Services
             return await _repo.GetAllAsync();
         }
 
+        public async Task<Product?> GetProductBySlugAsync(string slug)
+        {
+            return await _repo.GetBySlugAsync(slug);
+        }
+
         public async Task<ProductResult> CreateProductAsync(ProductRequest req)
         {
             try
@@ -87,6 +92,10 @@ namespace SnekartApi.Services
                 Description = req.Description,
                 Items       = req.Items,
                 Image       = req.Image,
+                Images      = req.Images,
+                Specifications = req.Specifications,
+                SellerName  = string.IsNullOrWhiteSpace(req.SellerName) ? "Snekart" : req.SellerName,
+                SellerRating = req.SellerRating,
                 Badge       = string.IsNullOrWhiteSpace(req.Badge) ? null : req.Badge,
                 InStock     = req.InStock,
             };

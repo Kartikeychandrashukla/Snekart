@@ -26,6 +26,11 @@ namespace SnekartApi.Repositories
             return await _db.Products.FindAsync(id);
         }
 
+        public async Task<Product?> GetBySlugAsync(string slug)
+        {
+            return await _db.Products.FirstOrDefaultAsync(p => p.Slug == slug);
+        }
+
         public async Task<List<Product>> GetByIdsAsync(List<int> ids)
         {
             return await _db.Products.Where(p => ids.Contains(p.Id)).ToListAsync();
@@ -52,6 +57,10 @@ namespace SnekartApi.Repositories
             existing.Description = product.Description;
             existing.Items       = product.Items;
             existing.Image       = product.Image;
+            existing.Images      = product.Images;
+            existing.Specifications = product.Specifications;
+            existing.SellerName  = product.SellerName;
+            existing.SellerRating = product.SellerRating;
             existing.Badge       = product.Badge;
             existing.InStock     = product.InStock;
 

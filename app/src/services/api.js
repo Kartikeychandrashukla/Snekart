@@ -28,7 +28,7 @@ export async function getMyOrders() {
 
 // Price/total aren't sent — the server derives both from the Products table so
 // a tampered request can't buy anything below its real price
-export async function placeOrder({ items, address }) {
+export async function placeOrder({ items, address, paymentMethod = 'COD' }) {
   const res = await apiFetch(`${BASE_URL}/orders`, {
     method:  'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -41,19 +41,33 @@ export async function placeOrder({ items, address }) {
         qty:       i.qty,
       })),
       address,
+      paymentMethod,
     }),
   })
   const data = await res.json()
   if (!res.ok) throw new Error(data.message || 'Failed to place order')
   return {
-    orderId:  data.id,
-    placedAt: data.placedAt,
-    total:    data.total,
+    orderId:         data.id,
+    placedAt:        data.placedAt,
+    total:           data.total,
     items,
     address,
-    payment:  'COD',
-    status:   'Pending',
+    payment:         paymentMethod,
+    status:          'Pending',
+    razorpayOrderId: data.razorpayOrderId,
+    razorpayKeyId:   data.razorpayKeyId,
   }
+}
+
+export async function verifyPayment(orderId, { razorpayOrderId, razorpayPaymentId, razorpaySignature }) {
+  const res = await apiFetch(`${BASE_URL}/orders/${orderId}/verify-payment`, {
+    method:  'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body:    JSON.stringify({ razorpayOrderId, razorpayPaymentId, razorpaySignature }),
+  })
+  const data = await res.json()
+  if (!res.ok) throw new Error(data.message || 'Payment verification failed')
+  return data
 }
 
 export async function getOrderById(orderId) {
@@ -84,6 +98,12 @@ export async function updateOrderStatus(orderId, status) {
 export async function getProducts() {
   const res = await apiFetch(`${BASE_URL}/products`)
   if (!res.ok) return []
+  return res.json()
+}
+
+export async function getProductBySlug(slug) {
+  const res = await apiFetch(`${BASE_URL}/products/${slug}`)
+  if (!res.ok) return null
   return res.json()
 }
 
@@ -128,6 +148,47 @@ export async function uploadProductImage(file) {
   return `${API_HOST}${data.url}`
 }
 
+export async function uploadReviewImage(file) {
+  const formData = new FormData()
+  formData.append('file', file)
+  const res = await apiFetch(`${BASE_URL}/uploads/review-image`, {
+    method: 'POST',
+    body:   formData,
+  })
+  const data = await res.json()
+  if (!res.ok) throw new Error(data.message || 'Failed to upload image')
+  return `${API_HOST}${data.url}`
+}
+
+export async function uploadBlogVideo(file) {
+  const formData = new FormData()
+  formData.append('file', file)
+  const res = await apiFetch(`${BASE_URL}/uploads/video`, {
+    method: 'POST',
+    body:   formData,
+  })
+  const data = await res.json()
+  if (!res.ok) throw new Error(data.message || 'Failed to upload video')
+  return `${API_HOST}${data.url}`
+}
+
+// Only uploaded blobs (served from /api/uploads/...) have a DB row to clean
+// up — pasted external image/video URLs are left alone since there's
+// nothing on our side to delete.
+export async function deleteUploadedImage(url) {
+  if (!url || !url.includes('/api/uploads/image/')) return
+  const id = url.split('/').pop()
+  const res = await apiFetch(`${BASE_URL}/uploads/image/${id}`, { method: 'DELETE' })
+  if (!res.ok && res.status !== 404) throw new Error('Failed to delete image')
+}
+
+export async function deleteUploadedVideo(url) {
+  if (!url || !url.includes('/api/uploads/video/')) return
+  const id = url.split('/').pop()
+  const res = await apiFetch(`${BASE_URL}/uploads/video/${id}`, { method: 'DELETE' })
+  if (!res.ok && res.status !== 404) throw new Error('Failed to delete video')
+}
+
 export async function registerCustomer({ name, email, password }) {
   const res = await apiFetch(`${BASE_URL}/auth/register`, {
     method:  'POST',
@@ -157,4 +218,68 @@ export async function logoutCustomer() {
   const res = await apiFetch(`${BASE_URL}/auth/logout`, { method: 'POST' })
   const data = await res.json()
   return data.message
+}
+
+export async function getBlogPosts() {
+  const res = await apiFetch(`${BASE_URL}/blogposts`)
+  if (!res.ok) return []
+  return res.json()
+}
+
+export async function getBlogPostBySlug(slug) {
+  const res = await apiFetch(`${BASE_URL}/blogposts/${slug}`)
+  if (!res.ok) return null
+  return res.json()
+}
+
+export async function createBlogPost(post) {
+  const res = await apiFetch(`${BASE_URL}/blogposts`, {
+    method:  'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body:    JSON.stringify(post),
+  })
+  const data = await res.json()
+  if (!res.ok) throw new Error(data.message || 'Failed to create post')
+  return data
+}
+
+export async function updateBlogPost(id, post) {
+  const res = await apiFetch(`${BASE_URL}/blogposts/${id}`, {
+    method:  'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body:    JSON.stringify(post),
+  })
+  const data = await res.json()
+  if (!res.ok) throw new Error(data.message || 'Failed to update post')
+  return data
+}
+
+export async function deleteBlogPost(id) {
+  const res = await apiFetch(`${BASE_URL}/blogposts/${id}`, { method: 'DELETE' })
+  const data = await res.json()
+  if (!res.ok) throw new Error(data.message || 'Failed to delete post')
+  return data
+}
+
+export async function getProductReviews(slug) {
+  const res = await apiFetch(`${BASE_URL}/products/${slug}/reviews`)
+  if (!res.ok) return []
+  return res.json()
+}
+
+export async function createReview(slug, { customerName, rating, comment, images }) {
+  const res = await apiFetch(`${BASE_URL}/products/${slug}/reviews`, {
+    method:  'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body:    JSON.stringify({ customerName, rating, comment, images: images ?? [] }),
+  })
+  const data = await res.json()
+  if (!res.ok) throw new Error(data.message || 'Failed to submit review')
+  return data
+}
+export async function deleteReview(slug, reviewId) {
+  const res = await apiFetch(`${BASE_URL}/products/${slug}/reviews/${reviewId}`, { method: 'DELETE' })
+  const data = await res.json()
+  if (!res.ok) throw new Error(data.message || 'Failed to delete review')
+  return data
 }

@@ -27,6 +27,26 @@ namespace SnekartApi.Controllers
             return Ok(publicProducts);
         }
 
+        [HttpGet("{slug}")]
+        public async Task<IActionResult> GetProductBySlug(string slug)
+        {
+            var product = await _service.GetProductBySlugAsync(slug);
+            if (product == null) return NotFound();
+
+            var isAdmin = HttpContext.Items["IsAdmin"] is true;
+            if (isAdmin) return Ok(product);
+
+            // CostPrice is internal margin data — never expose it to anonymous/customer requests
+            var publicProduct = new
+            {
+                product.Id, product.Tier, product.TierLabel, product.Name, product.Slug, product.Emotion,
+                product.Price, product.Description, product.Items, product.Image, product.Images,
+                product.Specifications, product.SellerName, product.SellerRating,
+                product.Badge, product.InStock,
+            };
+            return Ok(publicProduct);
+        }
+
         [HttpPost]
         [RequireAdminSession]
         public async Task<IActionResult> CreateProduct([FromBody] ProductRequest req)

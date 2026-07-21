@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { createProduct, updateProduct, deleteProduct, uploadProductImage } from '../services/api'
+import { createProduct, updateProduct, deleteProduct, uploadProductImage, deleteUploadedImage } from '../services/api'
 
 const emotionOptions = ['happy', 'loved', 'anxious', 'sad', 'calm', 'overwhelmed']
 const tierOptions = [
@@ -7,6 +7,8 @@ const tierOptions = [
   { value: 2, label: 'Core Kit (₹799–1,299)' },
   { value: 3, label: 'Premium Kit (₹1,999–5,000)' },
 ]
+
+const MAX_GALLERY_IMAGES = 4 // plus 1 primary image = 5 total
 
 function toFormState(product) {
   return {
@@ -19,6 +21,7 @@ function toFormState(product) {
     items:       product?.items?.join('\n') ?? '',
     emotion:     product?.emotion ?? [],
     image:       product?.image ?? '',
+    images:      product?.images ?? [],
     badge:       product?.badge ?? '',
     inStock:     product?.inStock ?? true,
   }
@@ -31,6 +34,7 @@ export default function AdminProductModal({ product, onClose, onSaved, onToast }
   const [error, setError] = useState('')
   const [confirmDelete, setConfirmDelete] = useState(false)
   const [uploading, setUploading] = useState(false)
+  const [uploadingGallery, setUploadingGallery] = useState(false)
 
   function setField(key, value) {
     setForm(f => ({ ...f, [key]: value }))
@@ -48,6 +52,41 @@ export default function AdminProductModal({ product, onClose, onSaved, onToast }
     } finally {
       setUploading(false)
       e.target.value = ''
+    }
+  }
+
+  async function handleGalleryFileChange(e) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setUploadingGallery(true)
+    try {
+      const url = await uploadProductImage(file)
+      setForm(f => ({ ...f, images: [...f.images, url] }))
+    } catch (err) {
+      onToast?.(err.message, 'error')
+    } finally {
+      setUploadingGallery(false)
+      e.target.value = ''
+    }
+  }
+
+  async function removePrimaryImage() {
+    const url = form.image
+    setField('image', '')
+    try {
+      await deleteUploadedImage(url)
+    } catch (err) {
+      onToast?.(err.message, 'error')
+    }
+  }
+
+  async function removeGalleryImage(index) {
+    const url = form.images[index]
+    setForm(f => ({ ...f, images: f.images.filter((_, i) => i !== index) }))
+    try {
+      await deleteUploadedImage(url)
+    } catch (err) {
+      onToast?.(err.message, 'error')
     }
   }
 
@@ -77,6 +116,7 @@ export default function AdminProductModal({ product, onClose, onSaved, onToast }
       description: form.description.trim(),
       items:       form.items.split('\n').map(s => s.trim()).filter(Boolean),
       image:       form.image.trim(),
+      images:      form.images.map(s => s.trim()).filter(Boolean),
       badge:       form.badge.trim() || null,
       inStock:     form.inStock,
     }
@@ -208,11 +248,20 @@ export default function AdminProductModal({ product, onClose, onSaved, onToast }
             <label className="text-xs text-gray-400 mb-1 block">Image</label>
             <div className="flex items-center gap-3">
               {form.image && (
-                <img
-                  src={form.image}
-                  alt=""
-                  className="w-14 h-14 rounded-lg object-cover border border-taupe shrink-0"
-                />
+                <div className="relative w-14 h-14 shrink-0">
+                  <img
+                    src={form.image}
+                    alt=""
+                    className="w-14 h-14 rounded-lg object-cover border border-taupe"
+                  />
+                  <button
+                    type="button"
+                    onClick={removePrimaryImage}
+                    className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-forest text-white text-xs leading-none flex items-center justify-center hover:bg-forest/90 transition-colors"
+                  >
+                    ✕
+                  </button>
+                </div>
               )}
               <label className="flex-1 cursor-pointer">
                 <span className={`block text-center text-sm px-4 py-2.5 rounded-xl border transition-colors ${
@@ -238,6 +287,48 @@ export default function AdminProductModal({ product, onClose, onSaved, onToast }
               placeholder="or paste an image URL"
               className="w-full mt-2 bg-cream border border-taupe rounded-xl px-4 py-2.5 text-sm text-forest placeholder-gray-300 outline-none focus:border-forest transition-colors"
             />
+          </div>
+
+          <div>
+            <label className="text-xs text-gray-400 mb-1 block">
+              Gallery Images ({form.images.length}/{MAX_GALLERY_IMAGES}) — shown as additional photos on the product page
+            </label>
+            <div className="flex items-center gap-3 flex-wrap">
+              {form.images.map((img, i) => (
+                <div key={img + i} className="relative w-14 h-14 shrink-0">
+                  <img
+                    src={img}
+                    alt=""
+                    className="w-14 h-14 rounded-lg object-cover border border-taupe"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => removeGalleryImage(i)}
+                    className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-forest text-white text-xs leading-none flex items-center justify-center hover:bg-forest/90 transition-colors"
+                  >
+                    ✕
+                  </button>
+                </div>
+              ))}
+              {form.images.length < MAX_GALLERY_IMAGES && (
+                <label className="cursor-pointer">
+                  <span className={`block text-center text-sm px-4 py-2.5 rounded-xl border transition-colors ${
+                    uploadingGallery
+                      ? 'bg-cream border-taupe text-gray-300 cursor-wait'
+                      : 'bg-cream border-taupe text-forest hover:border-forest'
+                  }`}>
+                    {uploadingGallery ? 'Uploading...' : '+ Add Image'}
+                  </span>
+                  <input
+                    type="file"
+                    accept="image/png,image/jpeg,image/webp,image/gif"
+                    onChange={handleGalleryFileChange}
+                    disabled={uploadingGallery}
+                    className="hidden"
+                  />
+                </label>
+              )}
+            </div>
           </div>
 
           <div>
@@ -275,7 +366,7 @@ export default function AdminProductModal({ product, onClose, onSaved, onToast }
           <div className="flex items-center gap-3 pt-2">
             <button
               type="submit"
-              disabled={saving || uploading}
+              disabled={saving || uploading || uploadingGallery}
               className="flex-1 bg-forest text-white font-semibold py-3 rounded-xl hover:bg-forest/90 transition-colors disabled:opacity-50"
             >
               {saving ? 'Saving...' : isEdit ? 'Save Changes' : 'Add Product'}

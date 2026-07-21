@@ -15,6 +15,14 @@ namespace SnekartApi.Data
 
         public DbSet<ProductImage> ProductImages { get; set; }
 
+        public DbSet<BlogPost> BlogPosts { get; set; }
+
+        public DbSet<Review> Reviews{get; set;}
+
+        public DbSet<Video> Videos{get; set;}
+
+        public DbSet<NewsletterSubscriber> NewsletterSubscribers{get; set;}
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Order>()
@@ -43,6 +51,16 @@ namespace SnekartApi.Data
                 .HasIndex(c => c.Email)
                 .IsUnique();
 
+//subscriber email must be unique
+                  modelBuilder.Entity<NewsletterSubscriber>()
+                .HasIndex(c => c.Email)
+                .IsUnique();
+
+
+                modelBuilder.Entity<NewsletterSubscriber>()
+    .HasIndex(s => s.UnsubscribeToken);
+
+
             // Existing rows (created before Level existed) become "customer", not blank
             modelBuilder.Entity<Customer>()
                 .Property(c => c.Level)
@@ -70,6 +88,15 @@ namespace SnekartApi.Data
             modelBuilder.Entity<Product>()
                 .Property(p => p.CostPrice)
                 .HasPrecision(18, 2);
+
+            // Blog post slug must be unique
+            modelBuilder.Entity<BlogPost>()
+                .HasIndex(p => p.Slug)
+                .IsUnique();
+
+                modelBuilder.Entity<Review>()
+    .HasIndex(r => r.ProductId);
+
         }
     }
 }

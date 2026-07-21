@@ -10,6 +10,8 @@ namespace SnekartApi.Services
         Task<List<Order>> GetAllOrdersAsync();
         Task<OrderResult> UpdateStatusAsync(string id, string status);
         Task<List<Order>> GetMyOrdersAsync(int customerId);
+        Task<OrderResult> VerifyPaymentAsync(string orderId, string razorpayPaymentId, string razorpaySignature);
+        Task<bool> ConfirmPaymentFromWebhookAsync(string razorpayOrderId, string razorpayPaymentId);
     }
 
     public class OrderResult
@@ -18,5 +20,7 @@ namespace SnekartApi.Services
         public bool NotFound { get; set; }
         public string Message { get; set; } = "";
         public Order? Order { get; set; }
+        public string? RazorpayOrderId { get; set; }
+        public string? RazorpayKeyId { get; set; }
     }
 }

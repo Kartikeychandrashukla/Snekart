@@ -9,6 +9,10 @@ using SnekartApi.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
+var port = Environment.GetEnvironmentVariable("PORT") ?? "5084";
+builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
+
+
 var pgHost = builder.Configuration["PGHOST"];
 var connectionString = pgHost != null
     ? $"Host={pgHost};Port={builder.Configuration["PGPORT"]};Database={builder.Configuration["PGDATABASE"]};Username={builder.Configuration["PGUSER"]};Password={builder.Configuration["PGPASSWORD"]}"
@@ -23,6 +27,16 @@ builder.Services.AddScoped<IAuthRepository, AuthRepository>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<IBlogPostRepository, BlogPostRepository>();
+builder.Services.AddScoped<IBlogPostService, BlogPostService>();
+builder.Services.AddScoped<IReviewRepository, ReviewRepository>();
+builder.Services.AddScoped<IReviewService, ReviewService>();
+builder.Services.AddScoped<INewsletterRepository,NewsletterRepository>();
+builder.Services.AddScoped<INewsletterService,NewsletterService>();
+builder.Services.AddHttpClient<IEmailService, EmailService>(client =>
+    client.BaseAddress = new Uri("https://api.resend.com/"));
+builder.Services.AddHttpClient<IPaymentService, PaymentService>(client =>
+    client.BaseAddress = new Uri("https://api.razorpay.com/v1/"));
 
 var allowedOrigin = builder.Configuration["FrontendUrl"] ?? "http://localhost:5173";
 
@@ -65,6 +79,13 @@ using (var scope = app.Services.CreateScope())
     if (!db.Products.Any())
     {
         db.Products.AddRange(ProductSeedData.GetSeedProducts());
+        db.SaveChanges();
+    }
+
+    if (!db.BlogPosts.Any())
+    {
+        var productIdBySlug = db.Products.ToDictionary(p => p.Slug, p => p.Id);
+        db.BlogPosts.AddRange(BlogSeedData.GetSeedPosts(productIdBySlug));
         db.SaveChanges();
     }
 

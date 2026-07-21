@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import { useCart } from '../context/CartContext'
 
 // ── Shared style maps ─────────────────────────────────────────────────────────
@@ -49,10 +50,11 @@ export default function ProductCard({ product, onAdd, isAdmin, onEdit }) {
   return (
     <div className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow flex flex-col">
 
-      <div className="relative h-52 overflow-hidden">
+      <Link to={`/shop/${product.slug}`} className="relative h-52 overflow-hidden block">
         <img
           src={product.image}
           alt={product.name}
+          loading="lazy"
           className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
         />
         {product.badge && (
@@ -62,7 +64,7 @@ export default function ProductCard({ product, onAdd, isAdmin, onEdit }) {
         )}
         {isAdmin && (
           <button
-            onClick={() => onEdit(product)}
+            onClick={(e) => { e.preventDefault(); onEdit(product) }}
             title="Edit product"
             className="absolute top-3 right-3 bg-white text-forest w-8 h-8 rounded-full shadow-sm flex items-center justify-center hover:bg-forest hover:text-white transition-colors"
           >
@@ -71,7 +73,7 @@ export default function ProductCard({ product, onAdd, isAdmin, onEdit }) {
             </svg>
           </button>
         )}
-      </div>
+      </Link>
 
       <div className="p-4 flex flex-col flex-1">
         <div className="flex items-center gap-2 mb-2 flex-wrap">
@@ -85,7 +87,9 @@ export default function ProductCard({ product, onAdd, isAdmin, onEdit }) {
           ))}
         </div>
 
-        <h3 className="text-forest font-semibold text-base mb-1 leading-snug">{product.name}</h3>
+        <Link to={`/shop/${product.slug}`} className="text-forest font-semibold text-base mb-1 leading-snug hover:underline">
+          <h3>{product.name}</h3>
+        </Link>
         <p className="text-gray-400 text-xs leading-relaxed mb-2 flex-1">{product.description}</p>
         <p className="text-gray-300 text-xs mb-3 line-clamp-2">
           <span className="font-medium text-gray-400">Includes:</span> {product.items.join(', ')}

@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 import { useProducts } from '../context/ProductsContext'
-
+import homeImage from '../assets/home.jpeg'
 // ── Emotion data ──────────────────────────────────────────────────────────────
 const emotions = [
   { id: 'happy',       label: 'Happy',       bg: 'bg-warm',     border: 'border-warm' },
@@ -140,7 +140,7 @@ export default function Home() {
         {/* Right — hero image (swap src with your real product box photo) */}
         <div className="flex-1 flex justify-end">
           <img
-            src="https://picsum.photos/seed/snekartbox/560/420"
+            src={homeImage}
             alt="Snekart wellness kit"
             className="rounded-2xl object-cover w-full max-w-lg shadow-sm"
           />
@@ -195,7 +195,7 @@ export default function Home() {
           {/* Right kit images */}
           <div className="flex-1 flex gap-4 overflow-x-auto pb-1">
             {featuredKits.map(kit => (
-              <Link key={kit.id} to="/shop" className="shrink-0 group">
+              <Link key={kit.id} to={`/shop?kit=${kit.slug}`} className="shrink-0 group">
                 <div className="relative w-44 h-52 rounded-xl overflow-hidden shadow-sm">
                   <img
                     src={kit.image}

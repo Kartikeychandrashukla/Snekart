@@ -60,7 +60,7 @@ export default function Footer() {
             ))}
             <li>
               <a href="mailto:hello@snekart.in" className="text-sage text-sm hover:text-white transition-colors">
-                hello@snekart.in
+                team@snekart.in
               </a>
             </li>
           </ul>

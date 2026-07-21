@@ -6,6 +6,15 @@ namespace SnekartApi.DTOs
     {
         public List<OrderItemDto> Items { get; set; } = new();
         public AddressDto Address { get; set; } = new();
+        // "COD" or "Razorpay"
+        public string PaymentMethod { get; set; } = "COD";
+    }
+
+    public class VerifyPaymentRequest
+    {
+        public string RazorpayOrderId { get; set; } = "";
+        public string RazorpayPaymentId { get; set; } = "";
+        public string RazorpaySignature { get; set; } = "";
     }
 
     public class OrderItemDto

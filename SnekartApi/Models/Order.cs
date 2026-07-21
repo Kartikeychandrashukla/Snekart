@@ -9,6 +9,13 @@ namespace SnekartApi.Models
         public decimal Total { get; set; }
         public string Status { get; set; } = "Pending";
 
+        // "COD" or "Razorpay"
+        public string PaymentMethod { get; set; } = "COD";
+        // "COD" (no online payment involved), "Pending" (Razorpay order created, awaiting payment), "Paid"
+        public string PaymentStatus { get; set; } = "COD";
+        public string? RazorpayOrderId { get; set; }
+        public string? RazorpayPaymentId { get; set; }
+
         public int? CustomerId { get; set; }
 
         // Never serialize this navigation property — EF Core's relationship fixup

@@ -11,6 +11,10 @@ namespace SnekartApi.DTOs
         public string Description { get; set; } = "";
         public List<string> Items { get; set; } = new();
         public string Image { get; set; } = "";
+        public List<string> Images { get; set; } = new();
+        public List<string> Specifications { get; set; } = new();
+        public string SellerName { get; set; } = "Snekart";
+        public decimal SellerRating { get; set; }
         public string? Badge { get; set; }
         public bool InStock { get; set; } = true;
     }

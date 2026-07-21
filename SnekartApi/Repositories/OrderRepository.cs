@@ -52,5 +52,22 @@ namespace SnekartApi.Repositories
                 .ToListAsync();
         }
 
+        public async Task<Order?> GetByRazorpayOrderIdAsync(string razorpayOrderId)
+        {
+            return await _db.Orders
+                .Include(o => o.Items)
+                .FirstOrDefaultAsync(o => o.RazorpayOrderId == razorpayOrderId);
+        }
+
+        public async Task<bool> MarkPaidIfPendingAsync(string id, string razorpayPaymentId)
+        {
+            var order = await _db.Orders.FindAsync(id);
+            if (order == null || order.PaymentStatus == "Paid") return false;
+            order.PaymentStatus = "Paid";
+            order.RazorpayPaymentId = razorpayPaymentId;
+            await _db.SaveChangesAsync();
+            return true;
+        }
+
     }
 }

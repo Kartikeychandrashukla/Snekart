@@ -3,6 +3,7 @@ import { Outlet, useNavigate } from 'react-router-dom'
 import Navbar from '../components/Navbar'
 import Footer from '../components/Footer'
 import Toast from '../components/Toast'
+import ScrollToTop from '../components/ScrollToTop'
 import { useAuth } from '../context/AuthContext'
 
 export default function RootLayout() {
@@ -30,6 +31,7 @@ export default function RootLayout() {
 
   return (
     <div className="flex flex-col min-h-screen">
+      <ScrollToTop />
       {toast && (
         <Toast
           message={toast.message}

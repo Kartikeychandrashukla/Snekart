@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { useProducts } from '../context/ProductsContext'
 import { useAuth } from '../context/AuthContext'
 import ProductCard, { Toast, useAddToCart } from '../components/ProductCard'
@@ -18,11 +19,21 @@ export default function Shop() {
   const { products, loading, refetch } = useProducts()
   const { isAdmin: admin } = useAuth()
   const { handleAdd, toast, clearToast } = useAddToCart()
+  const [searchParams] = useSearchParams()
+  const highlightSlug = searchParams.get('kit')
+  const highlightRef = useRef(null)
   const [activeTier,    setActiveTier]    = useState(0)
   const [activeEmotion, setActiveEmotion] = useState('all')
   const [editingProduct, setEditingProduct] = useState(null)
   const [showAddModal,   setShowAddModal]   = useState(false)
   const [statusToast,    setStatusToast]    = useState(null) // { message, type }
+
+  // Scroll the exact kit someone clicked from the homepage into view once it's rendered
+  useEffect(() => {
+    if (highlightSlug && highlightRef.current) {
+      highlightRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    }
+  }, [highlightSlug, loading])
 
   function showStatusToast(message, type) {
     setStatusToast({ message, type })
@@ -110,13 +121,18 @@ export default function Shop() {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {filtered.map(p => (
-              <ProductCard
+              <div
                 key={p.id}
-                product={p}
-                onAdd={handleAdd}
-                isAdmin={admin}
-                onEdit={setEditingProduct}
-              />
+                ref={p.slug === highlightSlug ? highlightRef : null}
+                className={p.slug === highlightSlug ? 'ring-2 ring-forest ring-offset-2 rounded-2xl' : ''}
+              >
+                <ProductCard
+                  product={p}
+                  onAdd={handleAdd}
+                  isAdmin={admin}
+                  onEdit={setEditingProduct}
+                />
+              </div>
             ))}
           </div>
         )}
