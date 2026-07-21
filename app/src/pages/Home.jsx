@@ -94,9 +94,11 @@ export default function Home() {
 
       {/* ── HERO ─────────────────────────────────────────────────────────── */}
       <section
-        className="relative bg-cover bg-center aspect-[3/2]"
+        className="relative bg-cover bg-center sm:aspect-[3/2]"
         style={{ backgroundImage: `url(${heroImage})` }}
       >
+        <div className="absolute inset-0 bg-cream/70 sm:hidden" />
+
         <div className="relative max-w-7xl mx-auto px-4 sm:px-8 py-16">
           <div className="max-w-xl">
             <h1 className="text-5xl lg:text-6xl font-bold text-forest leading-tight mb-5">
