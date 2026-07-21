@@ -13,7 +13,8 @@ const tiers = [
   { value: 3, label: 'Premium  ₹1,999–₹5,000' },
 ]
 
-const emotions = ['all', 'happy', 'loved', 'anxious', 'sad', 'calm', 'overwhelmed']
+const emotions = ['all', 'happy', 'loved', 'anxious', 'sad', 'calm', 'overwhelmed', 'festive']
+
 
 export default function Shop() {
   const { products, loading, refetch } = useProducts()

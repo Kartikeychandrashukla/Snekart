@@ -9,6 +9,8 @@ const emotions = [
   { id: 'sad',         label: 'Sad',         bg: 'bg-dusty',    description: 'Comfort for hard days' },
   { id: 'calm',        label: 'Calm',        bg: 'bg-sage',     description: 'Peace & self-discovery' },
   { id: 'overwhelmed', label: 'Overwhelmed', bg: 'bg-taupe',    description: 'When it all feels like too much' },
+  { id: 'festive', label: 'Festive', bg: 'bg-marigold', description: 'Celebrate the season together' },
+
 ]
 
 const faceSVG = {
@@ -18,6 +20,8 @@ const faceSVG = {
   sad:         '😢',
   calm:        '😌',
   overwhelmed: '😐',
+festive: '🎉',
+
 }
 
 export default function Emotions() {

@@ -16,6 +16,8 @@ export const emotionColor = {
   sad:         'bg-dusty/80 text-forest',
   calm:        'bg-sage/60 text-forest',
   overwhelmed: 'bg-taupe text-forest',
+  festive: 'bg-marigold/60 text-forest',
+
 }
 
 // ── Hook — lives in parent pages only ────────────────────────────────────────

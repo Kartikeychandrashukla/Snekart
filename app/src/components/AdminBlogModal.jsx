@@ -3,7 +3,9 @@ import { createBlogPost, updateBlogPost, deleteBlogPost, uploadBlogVideo, upload
 import { useProducts } from '../context/ProductsContext'
 
 const categoryOptions = ['Self-Care', 'Gifting', 'Community', 'New Arrivals', 'Soft Life', 'Main Character Energy', 'Low Energy First Aid']
-const emotionOptions = ['happy', 'loved', 'anxious', 'sad', 'calm', 'overwhelmed']
+const emotionOptions = ['happy', 'loved', 'anxious', 'sad', 'calm', 'overwhelmed','festive']
+
+
 
 function toFormState(post) {
   return {

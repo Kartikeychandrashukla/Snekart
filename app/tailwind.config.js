@@ -12,6 +12,7 @@ export default {
         warm:     "#F7E2A6",
         cream:    "#FAF7F2",
         taupe:    "#E7E1D9",
+        marigold: "#E3A857",
       },
       fontFamily: {
         sans: ["Inter", "sans-serif"],

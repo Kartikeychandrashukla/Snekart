@@ -9,6 +9,8 @@ const emotions = [
   { id: 'sad',         label: 'Sad' },
   { id: 'calm',        label: 'Calm' },
   { id: 'overwhelmed', label: 'Overwhelmed' },
+  { id: 'festive', label: 'Festive' },
+
 ]
 
 // ── Face SVGs (matching the mockup line-drawn circles) ────────────────────────
@@ -67,6 +69,16 @@ function FaceSVG({ type }) {
         <path d="M18 13 Q22 10 26 13" strokeLinecap="round"/>
       </svg>
     ),
+    festive: (
+  <svg className={base} viewBox="0 0 44 44" fill="none" stroke="currentColor" strokeWidth="1.5">
+    <circle cx="22" cy="22" r="20"/>
+    <path d="M13 26 Q22 34 31 26" strokeLinecap="round"/>
+    <path d="M15 16 L17.5 19 M15 19 L17.5 16" strokeLinecap="round"/>
+    <path d="M29 16 L26.5 19 M29 19 L26.5 16" strokeLinecap="round"/>
+    <path d="M22 6 L22 10 M18.5 7 L19.5 10.5 M25.5 7 L24.5 10.5" strokeLinecap="round"/>
+  </svg>
+),
+
   }
   return faces[type] || null
 }
