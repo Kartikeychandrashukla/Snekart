@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import logo from '../assets/logo.png'
+import logo from '../assets/logo.jpeg'
 
 const quickLinks = [
   { to: '/shop',         label: 'Shop All Kits' },
@@ -22,8 +22,7 @@ export default function Footer() {
         {/* Brand */}
         <div className="md:col-span-1">
           <div className="flex items-center gap-2 mb-4">
-            <img src={logo} alt="Snekart" className="h-10 w-10 object-contain rounded-full" />
-            <span className="text-xl font-semibold tracking-wide">snekart</span>
+            <img src={logo} alt="Snekart" className="h-10 w-10 object-cover rounded-full border-2 border-sage/40" />
           </div>
           <p className="text-sage text-sm leading-relaxed">
             Celebrate every emotion.<br />Embrace every you.

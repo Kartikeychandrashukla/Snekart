@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react'
 import { NavLink, Link } from 'react-router-dom'
 import { useCart } from '../context/CartContext'
 import { useAuth } from '../context/AuthContext'
-import logo from '../assets/logo.png'
+import logo from '../assets/logo.jpeg'
 
 const navLinks = [
   { to: '/',             label: 'Home',         end: true },
@@ -38,8 +38,7 @@ export default function Navbar() {
 
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2 shrink-0">
-          <img src={logo} alt="Snekart" className="h-9 w-9 object-contain" />
-          <span className="text-forest font-semibold text-xl tracking-wide">snekart</span>
+          <img src={logo} alt="Snekart" className="h-9 w-9 object-cover rounded-full border-2 border-taupe" />
         </Link>
 
         {/* Nav Links */}
