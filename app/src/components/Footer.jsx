@@ -22,7 +22,7 @@ export default function Footer() {
         {/* Brand */}
         <div className="md:col-span-1">
           <div className="flex items-center gap-2 mb-4">
-            <img src={logo} alt="Snekart" className="h-10 w-10 object-cover rounded-full border-2 border-sage/40" />
+            <img src={logo} alt="Snekart" className="h-14 w-14 object-cover rounded-full border-2 border-sage/40" />
           </div>
           <p className="text-sage text-sm leading-relaxed">
             Celebrate every emotion.<br />Embrace every you.

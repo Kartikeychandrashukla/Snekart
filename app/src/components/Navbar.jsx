@@ -38,7 +38,7 @@ export default function Navbar() {
 
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2 shrink-0">
-          <img src={logo} alt="Snekart" className="h-9 w-9 object-cover rounded-full border-2 border-taupe" />
+          <img src={logo} alt="Snekart" className="h-12 w-12 object-cover rounded-full border-2 border-taupe" />
         </Link>
 
         {/* Nav Links */}
