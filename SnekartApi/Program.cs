@@ -38,12 +38,13 @@ builder.Services.AddHttpClient<IEmailService, EmailService>(client =>
 builder.Services.AddHttpClient<IPaymentService, PaymentService>(client =>
     client.BaseAddress = new Uri("https://api.razorpay.com/v1/"));
 
-var allowedOrigin = builder.Configuration["FrontendUrl"] ?? "http://localhost:5173";
+var allowedOrigins = (builder.Configuration["FrontendUrl"] ?? "http://localhost:5173")
+    .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
 
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("ReactApp", policy =>
-        policy.WithOrigins(allowedOrigin)
+        policy.WithOrigins(allowedOrigins)
               .AllowAnyHeader()
               .AllowAnyMethod()
               .AllowCredentials());
