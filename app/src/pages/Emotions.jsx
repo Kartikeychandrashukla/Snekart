@@ -42,7 +42,7 @@ export default function Emotions() {
 
       {/* ── Header ───────────────────────────────────────────────────────── */}
       <div className="bg-white border-b border-taupe">
-        <div className="max-w-7xl mx-auto px-8 py-10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-8 py-10">
           <h1 className="text-3xl font-bold text-forest mb-1">Shop by Emotion</h1>
           <p className="text-gray-400 text-sm">
             Tell us how you feel. We'll find the right kit.
@@ -50,7 +50,7 @@ export default function Emotions() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-8 py-10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-8 py-10">
 
         {/* ── Emotion Selector ─────────────────────────────────────────────── */}
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 mb-12">

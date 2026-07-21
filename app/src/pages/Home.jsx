@@ -93,7 +93,7 @@ export default function Home() {
     <div className="bg-cream">
 
       {/* ── HERO ─────────────────────────────────────────────────────────── */}
-      <section className="max-w-7xl mx-auto px-8 py-16 flex flex-col lg:flex-row items-center gap-12">
+      <section className="max-w-7xl mx-auto px-4 sm:px-8 py-16 flex flex-col lg:flex-row items-center gap-12">
 
         {/* Left */}
         <div className="flex-1">
@@ -111,7 +111,7 @@ export default function Home() {
           </Link>
 
           {/* Trust badges */}
-          <div className="flex gap-10 mt-10">
+          <div className="flex flex-wrap gap-6 sm:gap-10 mt-10">
             {[
               { icon: (
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
@@ -149,7 +149,7 @@ export default function Home() {
 
       {/* ── EMOTION GRID ─────────────────────────────────────────────────── */}
       <section className="bg-white py-16">
-        <div className="max-w-7xl mx-auto px-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-8">
           <h2 className="text-3xl font-bold text-forest text-center mb-2">
             Wellness for Every Emotion
           </h2>
@@ -174,7 +174,7 @@ export default function Home() {
 
       {/* ── FEATURED KITS ────────────────────────────────────────────────── */}
       <section className="py-16" style={{ backgroundColor: '#EDE8E1' }}>
-        <div className="max-w-7xl mx-auto px-8 flex flex-col lg:flex-row items-center gap-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-8 flex flex-col lg:flex-row items-center gap-12">
 
           {/* Left text */}
           <div className="lg:w-80 shrink-0">
@@ -215,7 +215,7 @@ export default function Home() {
 
       {/* ── VALUE PROPS ──────────────────────────────────────────────────── */}
       <section className="bg-cream border-y border-taupe py-10">
-        <div className="max-w-7xl mx-auto px-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 divide-y lg:divide-y-0 lg:divide-x divide-taupe">
+        <div className="max-w-7xl mx-auto px-4 sm:px-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 divide-y lg:divide-y-0 lg:divide-x divide-taupe">
           {valueProps.map(({ Icon, title, desc }) => (
             <div key={title} className="flex items-start gap-4 px-6 py-4 lg:py-0 first:pl-0 last:pr-0">
               <Icon />
@@ -230,7 +230,7 @@ export default function Home() {
 
       {/* ── TESTIMONIAL ──────────────────────────────────────────────────── */}
       <section className="bg-forest py-16">
-        <div className="max-w-5xl mx-auto px-8 flex flex-col md:flex-row items-center gap-10">
+        <div className="max-w-5xl mx-auto px-4 sm:px-8 flex flex-col md:flex-row items-center gap-10">
 
           {/* Illustration placeholder */}
           <div className="shrink-0 w-32 h-32 rounded-full bg-sage/20 flex items-center justify-center">

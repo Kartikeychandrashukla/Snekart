@@ -53,7 +53,7 @@ export default function AdminDashboard() {
 
       {/* Header */}
       <div className="bg-forest text-white">
-        <div className="max-w-7xl mx-auto px-8 py-6 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-4 sm:px-8 py-6 flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold">Admin Dashboard</h1>
             <p className="text-sage text-sm mt-0.5">{orders.length} total orders</p>
@@ -67,7 +67,7 @@ export default function AdminDashboard() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-8 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-8 py-8">
 
         {/* Tabs */}
         <div className="flex gap-2 mb-8">
@@ -94,8 +94,8 @@ export default function AdminDashboard() {
             <p className="text-sm">Orders placed on the website will appear here</p>
           </div>
         ) : (
-          <div className="bg-white rounded-2xl border border-taupe overflow-hidden">
-            <table className="w-full text-sm">
+          <div className="bg-white rounded-2xl border border-taupe overflow-x-auto">
+            <table className="w-full text-sm min-w-[720px]">
               <thead>
                 <tr className="border-b border-taupe bg-cream">
                   <th className="text-left px-6 py-4 text-forest font-semibold">Order ID</th>
@@ -180,8 +180,8 @@ function AdminBlogPanel() {
           <p className="text-sm">Published posts will appear here</p>
         </div>
       ) : (
-        <div className="bg-white rounded-2xl border border-taupe overflow-hidden">
-          <table className="w-full text-sm">
+        <div className="bg-white rounded-2xl border border-taupe overflow-x-auto">
+          <table className="w-full text-sm min-w-[560px]">
             <thead>
               <tr className="border-b border-taupe bg-cream">
                 <th className="text-left px-6 py-4 text-forest font-semibold">Title</th>

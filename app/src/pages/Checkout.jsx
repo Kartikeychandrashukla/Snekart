@@ -146,14 +146,14 @@ export default function Checkout() {
 
       {/* Header */}
       <div className="bg-white border-b border-taupe">
-        <div className="max-w-7xl mx-auto px-8 py-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-8 py-8">
           <h1 className="text-3xl font-bold text-forest">Checkout</h1>
           <p className="text-gray-400 text-sm mt-1">Almost there — just your delivery details</p>
         </div>
       </div>
 
       <form onSubmit={handleSubmit}>
-        <div className="max-w-7xl mx-auto px-8 py-8 flex flex-col lg:flex-row gap-8 items-start">
+        <div className="max-w-7xl mx-auto px-4 sm:px-8 py-8 flex flex-col lg:flex-row gap-8 items-start">
 
           {/* ── Address Form ──────────────────────────────────────────────── */}
           <div className="flex-1">
@@ -188,7 +188,7 @@ export default function Checkout() {
           </div>
 
           {/* ── Order Summary ──────────────────────────────────────────────── */}
-          <div className="lg:w-80 w-full shrink-0 sticky top-20">
+          <div className="lg:w-80 w-full shrink-0 lg:sticky lg:top-20">
             <div className="bg-white rounded-2xl border border-taupe p-6">
               <h2 className="text-forest font-bold text-lg mb-5">Order Summary</h2>
 

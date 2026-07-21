@@ -46,7 +46,7 @@ export default function BlogPostDetail() {
 
   return (
     <div className="bg-cream min-h-screen">
-      <div className="max-w-3xl mx-auto px-8 py-10">
+      <div className="max-w-3xl mx-auto px-4 sm:px-8 py-10">
 
         <Link to="/blog" className="text-gray-400 text-sm hover:text-forest transition-colors">
           ← Back to the Journal

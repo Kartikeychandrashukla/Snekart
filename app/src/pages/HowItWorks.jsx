@@ -90,7 +90,7 @@ export default function HowItWorks() {
 
       {/* ── Hero ───────────────────────────────────────────────────────── */}
       <div className="bg-white border-b border-taupe">
-        <div className="max-w-4xl mx-auto px-8 py-16 text-center">
+        <div className="max-w-4xl mx-auto px-4 sm:px-8 py-16 text-center">
           <p className="text-sage text-sm font-semibold uppercase tracking-widest mb-3">The Process</p>
           <h1 className="text-4xl font-bold text-forest mb-4 leading-tight">
             Emotions first.<br />Products second.
@@ -102,7 +102,7 @@ export default function HowItWorks() {
       </div>
 
       {/* ── 3 Steps ────────────────────────────────────────────────────── */}
-      <div className="max-w-5xl mx-auto px-8 py-16">
+      <div className="max-w-5xl mx-auto px-4 sm:px-8 py-16">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {steps.map(step => (
             <div key={step.number} className={`${step.bg} rounded-2xl p-8 flex flex-col gap-5`}>
@@ -121,7 +121,7 @@ export default function HowItWorks() {
 
       {/* ── What's Inside ──────────────────────────────────────────────── */}
       <div className="bg-forest text-white">
-        <div className="max-w-5xl mx-auto px-8 py-16">
+        <div className="max-w-5xl mx-auto px-4 sm:px-8 py-16">
           <h2 className="text-3xl font-bold mb-2 text-center">What's inside every kit</h2>
           <p className="text-sage text-center text-sm mb-12">Beyond just products — each kit is a full experience.</p>
 
@@ -143,7 +143,7 @@ export default function HowItWorks() {
       </div>
 
       {/* ── Tiers ──────────────────────────────────────────────────────── */}
-      <div className="max-w-5xl mx-auto px-8 py-16">
+      <div className="max-w-5xl mx-auto px-4 sm:px-8 py-16">
         <h2 className="text-2xl font-bold text-forest mb-2 text-center">Pick your depth</h2>
         <p className="text-gray-400 text-sm text-center mb-10">Three tiers — no customer left behind.</p>
 
@@ -161,7 +161,7 @@ export default function HowItWorks() {
 
       {/* ── FAQs ───────────────────────────────────────────────────────── */}
       <div className="bg-white border-t border-taupe">
-        <div className="max-w-3xl mx-auto px-8 py-16">
+        <div className="max-w-3xl mx-auto px-4 sm:px-8 py-16">
           <h2 className="text-2xl font-bold text-forest mb-10 text-center">Common questions</h2>
           <div className="space-y-6">
             {faqs.map(f => (

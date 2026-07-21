@@ -50,7 +50,7 @@ export default function Shop() {
 
       {/* Header */}
       <div className="bg-white border-b border-taupe">
-        <div className="max-w-7xl mx-auto px-8 py-10 flex items-start justify-between gap-4 flex-wrap">
+        <div className="max-w-7xl mx-auto px-4 sm:px-8 py-10 flex items-start justify-between gap-4 flex-wrap">
           <div>
             <h1 className="text-3xl font-bold text-forest mb-1">Shop All Kits</h1>
             <p className="text-gray-400 text-sm">
@@ -68,7 +68,7 @@ export default function Shop() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-8 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-8 py-8">
 
         {/* Filters */}
         <div className="flex flex-col gap-4 mb-8">

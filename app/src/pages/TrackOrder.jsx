@@ -36,13 +36,13 @@ export default function TrackOrder() {
 
       {/* Header */}
       <div className="bg-white border-b border-taupe">
-        <div className="max-w-2xl mx-auto px-8 py-10 text-center">
+        <div className="max-w-2xl mx-auto px-4 sm:px-8 py-10 text-center">
           <h1 className="text-3xl font-bold text-forest mb-2">Track Your Order</h1>
           <p className="text-gray-400 text-sm">Enter your order ID to see the latest status</p>
         </div>
       </div>
 
-      <div className="max-w-2xl mx-auto px-8 py-10">
+      <div className="max-w-2xl mx-auto px-4 sm:px-8 py-10">
 
         {/* Search */}
         <form onSubmit={handleSearch} className="flex gap-3 mb-8">
@@ -103,7 +103,7 @@ export default function TrackOrder() {
                         : <div className="w-2 h-2 rounded-full bg-taupe"/>
                       }
                     </div>
-                    <p className={`text-xs font-medium ${i <= currentStep ? 'text-forest' : 'text-gray-300'}`}>{s}</p>
+                    <p className={`w-14 sm:w-auto text-center text-[10px] sm:text-xs font-medium ${i <= currentStep ? 'text-forest' : 'text-gray-300'}`}>{s}</p>
                   </div>
                 ))}
               </div>

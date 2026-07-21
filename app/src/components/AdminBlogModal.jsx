@@ -151,7 +151,7 @@ export default function AdminBlogModal({ post, onClose, onSaved, onToast }) {
 
   return (
     <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center px-4 py-8 overflow-y-auto">
-      <div className="bg-white rounded-2xl p-8 w-full max-w-lg shadow-xl my-auto">
+      <div className="bg-white rounded-2xl p-4 sm:p-8 w-full max-w-lg shadow-xl my-auto">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-forest font-bold text-lg">{isEdit ? 'Edit Post' : 'New Post'}</h2>
           <button onClick={onClose} className="text-gray-400 hover:text-forest transition-colors">✕</button>
@@ -179,7 +179,7 @@ export default function AdminBlogModal({ post, onClose, onSaved, onToast }) {
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="text-xs text-gray-400 mb-1 block">Category</label>
               <select

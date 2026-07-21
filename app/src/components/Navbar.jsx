@@ -18,6 +18,7 @@ export default function Navbar() {
   const { isLoggedIn, customer, isAdmin, logout } = useAuth()
 
   const [dropdownOpen, setDropdownOpen] = useState(false)
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   const dropdownRef = useRef(null)
 
@@ -33,7 +34,7 @@ export default function Navbar() {
 
   return (
     <nav className="bg-white border-b border-taupe sticky top-0 z-40">
-      <div className="max-w-7xl mx-auto px-8 h-16 flex items-center justify-between">
+      <div className="max-w-7xl mx-auto px-4 sm:px-8 h-16 flex items-center justify-between">
 
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2 shrink-0">
@@ -62,7 +63,23 @@ export default function Navbar() {
         </div>
 
         {/* Icons */}
-        <div className="flex items-center gap-5">
+        <div className="flex items-center gap-3 sm:gap-5">
+
+          {/* Mobile menu toggle */}
+          <button
+            onClick={() => setMobileMenuOpen(o => !o)}
+            className="md:hidden text-gray-500 hover:text-forest transition-colors"
+            aria-label="Toggle menu"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+              strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+              {mobileMenuOpen ? (
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
+              ) : (
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+              )}
+            </svg>
+          </button>
 
           {/* Profile dropdown */}
           <div className="relative" ref={dropdownRef}>
@@ -161,6 +178,29 @@ export default function Navbar() {
         </div>
 
       </div>
+
+      {/* Mobile nav panel */}
+      {mobileMenuOpen && (
+        <div className="md:hidden border-t border-taupe px-4 py-3 flex flex-col gap-1">
+          {navLinks.map(link => (
+            <NavLink
+              key={link.to}
+              to={link.to}
+              end={link.end}
+              onClick={() => setMobileMenuOpen(false)}
+              className={({ isActive }) =>
+                `text-sm font-medium px-2 py-2.5 rounded-lg transition-colors ${
+                  isActive
+                    ? 'text-forest bg-cream'
+                    : 'text-gray-500 hover:text-forest hover:bg-cream'
+                }`
+              }
+            >
+              {link.label}
+            </NavLink>
+          ))}
+        </div>
+      )}
     </nav>
   )
 }

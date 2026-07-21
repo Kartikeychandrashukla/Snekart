@@ -47,7 +47,7 @@ export default function AboutUs() {
 
       {/* ── Hero ───────────────────────────────────────────────────────── */}
       <div className="bg-forest text-white">
-        <div className="max-w-4xl mx-auto px-8 py-20 text-center">
+        <div className="max-w-4xl mx-auto px-4 sm:px-8 py-20 text-center">
           <p className="text-sage text-sm font-semibold uppercase tracking-widest mb-4">Our Story</p>
           <h1 className="text-4xl font-bold mb-5 leading-tight">
             India's first emotion-targeted<br />wellness kit brand
@@ -61,7 +61,7 @@ export default function AboutUs() {
       </div>
 
       {/* ── Mission ────────────────────────────────────────────────────── */}
-      <div className="max-w-5xl mx-auto px-8 py-16 grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+      <div className="max-w-5xl mx-auto px-4 sm:px-8 py-16 grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
         <div>
           <p className="text-sage text-sm font-semibold uppercase tracking-widest mb-3">Mission</p>
           <h2 className="text-3xl font-bold text-forest mb-5 leading-snug">
@@ -102,7 +102,7 @@ export default function AboutUs() {
 
       {/* ── Values ─────────────────────────────────────────────────────── */}
       <div className="bg-white border-y border-taupe">
-        <div className="max-w-5xl mx-auto px-8 py-16">
+        <div className="max-w-5xl mx-auto px-4 sm:px-8 py-16">
           <p className="text-sage text-sm font-semibold uppercase tracking-widest mb-2 text-center">What we stand for</p>
           <h2 className="text-2xl font-bold text-forest mb-10 text-center">Our values</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -120,7 +120,7 @@ export default function AboutUs() {
       </div>
 
       {/* ── Timeline ───────────────────────────────────────────────────── */}
-      <div className="max-w-3xl mx-auto px-8 py-16">
+      <div className="max-w-3xl mx-auto px-4 sm:px-8 py-16">
         <p className="text-sage text-sm font-semibold uppercase tracking-widest mb-2 text-center">Where we've been</p>
         <h2 className="text-2xl font-bold text-forest mb-12 text-center">The Snekart journey</h2>
 
@@ -144,7 +144,7 @@ export default function AboutUs() {
 
       {/* ── CTA ────────────────────────────────────────────────────────── */}
       <div className="bg-forest text-white">
-        <div className="max-w-2xl mx-auto px-8 py-16 text-center">
+        <div className="max-w-2xl mx-auto px-4 sm:px-8 py-16 text-center">
           <h2 className="text-2xl font-bold mb-3">Ready to find your kit?</h2>
           <p className="text-sage/80 text-sm mb-8 leading-relaxed">
             Tell us how you feel. We'll find the right kit for you.

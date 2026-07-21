@@ -33,7 +33,7 @@ export default function Blog() {
 
       {/* ── Header ─────────────────────────────────────────────────────── */}
       <div className="bg-white border-b border-taupe">
-        <div className="max-w-7xl mx-auto px-8 py-10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-8 py-10">
           <h1 className="text-3xl font-bold text-forest mb-1">The Snekart Journal</h1>
           <p className="text-gray-400 text-sm">
             Thoughts on emotions, self-care, gifting, and building a brand that gives a damn.
@@ -41,7 +41,7 @@ export default function Blog() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-8 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-8 py-8">
 
         {loading ? (
           <p className="text-gray-400 text-center py-20">Loading posts...</p>

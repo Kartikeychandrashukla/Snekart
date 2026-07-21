@@ -19,7 +19,7 @@ export default function Cart() {
 
       {/* ── Header ───────────────────────────────────────────────────────── */}
       <div className="bg-white border-b border-taupe">
-        <div className="max-w-7xl mx-auto px-8 py-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-8 py-8">
           <h1 className="text-3xl font-bold text-forest">Your Cart</h1>
           <p className="text-gray-400 text-sm mt-1">
             {items.length} item{items.length !== 1 ? 's' : ''} in your cart
@@ -27,7 +27,7 @@ export default function Cart() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-8 py-8 flex flex-col lg:flex-row gap-8 items-start">
+      <div className="max-w-7xl mx-auto px-4 sm:px-8 py-8 flex flex-col lg:flex-row gap-8 items-start">
 
         {/* ── Cart Items ───────────────────────────────────────────────────── */}
         <div className="flex-1 flex flex-col gap-4">
@@ -50,7 +50,7 @@ export default function Cart() {
         </div>
 
         {/* ── Order Summary ─────────────────────────────────────────────────── */}
-        <div className="lg:w-80 w-full shrink-0 bg-white rounded-2xl border border-taupe p-6 sticky top-20">
+        <div className="lg:w-80 w-full shrink-0 bg-white rounded-2xl border border-taupe p-6 lg:sticky lg:top-20">
           <h2 className="text-forest font-bold text-lg mb-5">Order Summary</h2>
 
           {/* Line items */}

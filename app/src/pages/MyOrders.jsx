@@ -35,13 +35,13 @@ export default function MyOrders() {
     <div className="bg-cream min-h-screen">
 
       <div className="bg-white border-b border-taupe">
-        <div className="max-w-4xl mx-auto px-8 py-10">
+        <div className="max-w-4xl mx-auto px-4 sm:px-8 py-10">
           <h1 className="text-3xl font-bold text-forest mb-1">My Orders</h1>
           <p className="text-gray-400 text-sm">Welcome back, {customer?.name}</p>
         </div>
       </div>
 
-      <div className="max-w-4xl mx-auto px-8 py-8">
+      <div className="max-w-4xl mx-auto px-4 sm:px-8 py-8">
         {orders.length === 0 ? (
           <div className="text-center py-20">
             <p className="text-forest font-semibold text-lg mb-2">No orders yet</p>

@@ -62,7 +62,7 @@ export default function AdminOrderDetail() {
 
       {/* Header */}
       <div className="bg-forest text-white">
-        <div className="max-w-4xl mx-auto px-8 py-6 flex items-center justify-between">
+        <div className="max-w-4xl mx-auto px-4 sm:px-8 py-6 flex items-center justify-between">
           <div>
             <Link to="/admin" className="text-sage text-xs hover:text-white transition-colors">
               ← All Orders
@@ -75,7 +75,7 @@ export default function AdminOrderDetail() {
         </div>
       </div>
 
-      <div className="max-w-4xl mx-auto px-8 py-8 space-y-6">
+      <div className="max-w-4xl mx-auto px-4 sm:px-8 py-8 space-y-6">
 
         {/* Update Status */}
         <div className="bg-white rounded-2xl border border-taupe p-6">

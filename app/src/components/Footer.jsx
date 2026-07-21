@@ -17,7 +17,7 @@ const supportLinks = [
 export default function Footer() {
   return (
     <footer className="bg-forest text-white">
-      <div className="max-w-7xl mx-auto px-8 py-14 grid grid-cols-1 md:grid-cols-4 gap-10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-8 py-14 grid grid-cols-1 md:grid-cols-4 gap-10">
 
         {/* Brand */}
         <div className="md:col-span-1">
@@ -81,7 +81,7 @@ export default function Footer() {
 
       {/* Bottom bar */}
       <div className="border-t border-sage/20 py-4">
-        <div className="max-w-7xl mx-auto px-8 flex flex-col md:flex-row items-center justify-between gap-2">
+        <div className="max-w-7xl mx-auto px-4 sm:px-8 flex flex-col md:flex-row items-center justify-between gap-2">
           <p className="text-sage text-xs">© 2025 Snekart. All rights reserved.</p>
           <p className="text-sage text-xs">Made with care for every emotion.</p>
         </div>
