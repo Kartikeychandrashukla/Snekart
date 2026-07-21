@@ -193,7 +193,7 @@ export default function Home() {
           </div>
 
           {/* Right kit images */}
-          <div className="flex-1 flex gap-4 overflow-x-auto pb-1">
+          <div className="flex-1 min-w-0 flex gap-4 overflow-x-auto pb-1">
             {featuredKits.map(kit => (
               <Link key={kit.id} to={`/shop?kit=${kit.slug}`} className="shrink-0 group">
                 <div className="relative w-44 h-52 rounded-xl overflow-hidden shadow-sm">
