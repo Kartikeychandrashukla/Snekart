@@ -3,15 +3,14 @@ import { useProducts } from '../context/ProductsContext'
 import ProductCard, { Toast, useAddToCart } from '../components/ProductCard'
 
 const emotions = [
-  { id: 'happy',       label: 'Happy',       bg: 'bg-warm',     description: 'Celebrate the good days' },
-  { id: 'loved',       label: 'Loved',       bg: 'bg-peach',    description: 'For connection & affection' },
-  { id: 'anxious',     label: 'Anxious',     bg: 'bg-lavender', description: 'Calm the storm inside' },
-  { id: 'sad',         label: 'Sad',         bg: 'bg-dusty',    description: 'Comfort for hard days' },
-  { id: 'calm',        label: 'Calm',        bg: 'bg-sage',     description: 'Peace & self-discovery' },
-  { id: 'overwhelmed', label: 'Overwhelmed', bg: 'bg-taupe',    description: 'When it all feels like too much' },
-  { id: 'festive', label: 'Festive', bg: 'bg-marigold', description: 'Celebrate the season together' },
-  { id: 'occasion', label: 'Occasion', bg: 'bg-blush', description: "Gifts for life's big moments" },
-
+  { id: 'happy',       label: 'Happy' },
+  { id: 'loved',       label: 'Loved' },
+  { id: 'anxious',     label: 'Anxious' },
+  { id: 'sad',         label: 'Sad' },
+  { id: 'calm',        label: 'Calm' },
+  { id: 'overwhelmed', label: 'Overwhelmed' },
+  { id: 'festive',     label: 'Festive' },
+  { id: 'occasion',    label: 'Occasion' },
 ]
 
 const faceSVG = {
@@ -64,15 +63,15 @@ export default function Emotions() {
             <button
               key={e.id}
               onClick={() => selectEmotion(e.id)}
-              className={`${e.bg} rounded-2xl px-4 py-6 flex flex-col items-center gap-2 transition-all duration-200
+              title={e.label}
+              aria-label={e.label}
+              className={`bg-white border rounded-2xl px-4 py-6 flex items-center justify-center transition-all duration-200
                 ${active === e.id
-                  ? 'ring-2 ring-forest ring-offset-2 scale-[1.04]'
-                  : 'hover:scale-[1.02] opacity-80 hover:opacity-100'
+                  ? 'border-forest ring-1 ring-forest'
+                  : 'border-taupe hover:border-forest'
                 }`}
             >
               <span className="text-3xl">{faceSVG[e.id]}</span>
-              <span className="text-forest font-semibold text-sm">{e.label}</span>
-              <span className="text-forest/60 text-xs text-center leading-snug">{e.description}</span>
             </button>
           ))}
         </div>
