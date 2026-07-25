@@ -92,7 +92,7 @@ export default function ProductCard({ product, onAdd, isAdmin, onEdit }) {
         <Link to={`/shop/${product.slug}`} className="text-forest font-semibold text-base mb-1 leading-snug hover:underline">
           <h3>{product.name}</h3>
         </Link>
-        <p className="text-gray-400 text-xs leading-relaxed mb-2 flex-1">{product.description}</p>
+        <p className="text-gray-400 text-xs leading-relaxed mb-2 flex-1 line-clamp-1">{product.description}</p>
         <p className="text-gray-300 text-xs mb-3 line-clamp-2">
           <span className="font-medium text-gray-400">Includes:</span> {product.items.join(', ')}
         </p>
