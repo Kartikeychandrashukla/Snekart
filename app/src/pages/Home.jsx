@@ -10,6 +10,7 @@ const emotions = [
   { id: 'calm',        label: 'Calm' },
   { id: 'overwhelmed', label: 'Overwhelmed' },
   { id: 'festive', label: 'Festive' },
+  { id: 'occasion', label: 'Occasion' },
 
 ]
 
@@ -78,6 +79,15 @@ function FaceSVG({ type }) {
     <path d="M22 6 L22 10 M18.5 7 L19.5 10.5 M25.5 7 L24.5 10.5" strokeLinecap="round"/>
   </svg>
 ),
+    occasion: (
+      <svg className={base} viewBox="0 0 44 44" fill="none" stroke="currentColor" strokeWidth="1.5">
+        <rect x="10" y="18" width="24" height="16" rx="1.5"/>
+        <path d="M10 24 L34 24" strokeLinecap="round"/>
+        <path d="M22 18 L22 34" strokeLinecap="round"/>
+        <path d="M22 18 Q15 18 15 13 Q15 10 18 10 Q22 10 22 18Z"/>
+        <path d="M22 18 Q29 18 29 13 Q29 10 26 10 Q22 10 22 18Z"/>
+      </svg>
+    ),
 
   }
   return faces[type] || null

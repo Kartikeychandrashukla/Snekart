@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { createProduct, updateProduct, deleteProduct, uploadProductImage, deleteUploadedImage } from '../services/api'
 
-const emotionOptions = ['happy', 'loved', 'anxious', 'sad', 'calm', 'overwhelmed','festive']
+const emotionOptions = ['happy', 'loved', 'anxious', 'sad', 'calm', 'overwhelmed','festive','occasion']
 
 const tierOptions = [
   { value: 1, label: 'Starter Kit (₹399–599)' },

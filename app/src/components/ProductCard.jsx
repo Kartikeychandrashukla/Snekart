@@ -17,6 +17,7 @@ export const emotionColor = {
   calm:        'bg-sage/60 text-forest',
   overwhelmed: 'bg-taupe text-forest',
   festive: 'bg-marigold/60 text-forest',
+  occasion: 'bg-blush/60 text-forest',
 
 }
 

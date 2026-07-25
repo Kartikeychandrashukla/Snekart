@@ -10,6 +10,7 @@ const emotions = [
   { id: 'calm',        label: 'Calm',        bg: 'bg-sage',     description: 'Peace & self-discovery' },
   { id: 'overwhelmed', label: 'Overwhelmed', bg: 'bg-taupe',    description: 'When it all feels like too much' },
   { id: 'festive', label: 'Festive', bg: 'bg-marigold', description: 'Celebrate the season together' },
+  { id: 'occasion', label: 'Occasion', bg: 'bg-blush', description: "Gifts for life's big moments" },
 
 ]
 
@@ -21,6 +22,7 @@ const faceSVG = {
   calm:        '😌',
   overwhelmed: '😐',
 festive: '🎉',
+occasion: '🎁',
 
 }
 
