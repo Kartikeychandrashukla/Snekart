@@ -8,10 +8,14 @@ namespace SnekartApi.Services
     public class BlogPostService : IBlogPostService
     {
         private readonly IBlogPostRepository _repo;
+        private readonly IEmailService _emailService;
+        private readonly INewsletterService _newsletterService;
 
-        public BlogPostService(IBlogPostRepository repo)
+        public BlogPostService(IBlogPostRepository repo, IEmailService emailService, INewsletterService newsletterService)
         {
             _repo = repo;
+            _emailService = emailService;
+            _newsletterService = newsletterService;
         }
 
         public async Task<List<BlogPost>> GetAllPostsAsync()
@@ -31,6 +35,10 @@ namespace SnekartApi.Services
             var post = MapToPost(req);
             post.PublishedAt = DateTime.UtcNow;
             await _repo.AddAsync(post);
+
+            var subscribers = await _newsletterService.GetAllSubscribersAsync();
+            await _emailService.SendNewPostNotificationAsync(post, subscribers);
+
             return new BlogPostResult { Success = true, Message = "Post published successfully.", Post = post };
         }
         catch (Exception)
