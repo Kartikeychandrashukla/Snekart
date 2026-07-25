@@ -53,7 +53,11 @@ namespace SnekartApi.Services
     var apiKey = _config["ResendApiKey"];
     var fromEmail = _config["ResendFromEmail"];
     var apiHost = _config["ApiHost"] ?? "http://localhost:5232";
-    var frontendUrl = _config["FrontendUrl"] ?? "http://localhost:5173";
+    // FrontendUrl may hold a comma-separated list of allowed CORS origins — outbound
+    // links need exactly one canonical URL, so use the first entry.
+    var frontendUrl = (_config["FrontendUrl"] ?? "http://localhost:5173")
+        .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+        .First();
 
     if (string.IsNullOrWhiteSpace(apiKey) || string.IsNullOrWhiteSpace(fromEmail) || subscribers.Count == 0)
     {
