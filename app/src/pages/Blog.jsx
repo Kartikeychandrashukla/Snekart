@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useBlog } from '../context/BlogContext'
+import { subscribeNewsletter } from '../services/api'
 
 // ── Shared style map — also used by BlogPostDetail ─────────────────────────
 export const categoryColor = {
@@ -19,6 +20,24 @@ function formatDate(iso) {
 export default function Blog() {
   const { posts, loading } = useBlog()
   const [activeCategory, setActiveCategory] = useState('All')
+  const [email, setEmail] = useState('')
+  const [subscribing, setSubscribing] = useState(false)
+  const [subscribeMsg, setSubscribeMsg] = useState(null) // { text, type }
+
+  async function handleSubscribe(e) {
+    e.preventDefault()
+    setSubscribing(true)
+    setSubscribeMsg(null)
+    try {
+      const result = await subscribeNewsletter(email.trim())
+      setSubscribeMsg({ text: result.message || 'Subscribed!', type: 'success' })
+      setEmail('')
+    } catch (err) {
+      setSubscribeMsg({ text: err.message, type: 'error' })
+    } finally {
+      setSubscribing(false)
+    }
+  }
 
   const categories = ['All', ...new Set(posts.map(p => p.category))]
 
@@ -131,17 +150,30 @@ export default function Blog() {
           <p className="text-sage/80 text-sm mb-6">
             Emotion-led content, self-care ideas, and early access to new kits.
           </p>
-          <div className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
+          <form onSubmit={handleSubscribe} className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
             <input
               type="email"
+              required
+              value={email}
+              onChange={e => setEmail(e.target.value)}
               placeholder="your@email.com"
               className="flex-1 bg-white/10 border border-white/20 text-white placeholder-sage/60 rounded-xl px-4 py-3 text-sm outline-none focus:border-sage transition-colors"
             />
-            <button className="bg-white text-forest font-semibold px-6 py-3 rounded-xl hover:bg-cream transition-colors text-sm whitespace-nowrap">
-              Subscribe
+            <button
+              type="submit"
+              disabled={subscribing}
+              className="bg-white text-forest font-semibold px-6 py-3 rounded-xl hover:bg-cream transition-colors text-sm whitespace-nowrap disabled:opacity-60 disabled:cursor-not-allowed"
+            >
+              {subscribing ? 'Subscribing...' : 'Subscribe'}
             </button>
-          </div>
-          <p className="text-sage/50 text-xs mt-3">No spam. Unsubscribe anytime.</p>
+          </form>
+          {subscribeMsg ? (
+            <p className={`text-xs mt-3 ${subscribeMsg.type === 'error' ? 'text-red-300' : 'text-sage/80'}`}>
+              {subscribeMsg.text}
+            </p>
+          ) : (
+            <p className="text-sage/50 text-xs mt-3">No spam. Unsubscribe anytime.</p>
+          )}
         </div>
 
       </div>

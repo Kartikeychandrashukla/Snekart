@@ -277,6 +277,17 @@ export async function createReview(slug, { customerName, rating, comment, images
   if (!res.ok) throw new Error(data.message || 'Failed to submit review')
   return data
 }
+export async function subscribeNewsletter(email) {
+  const res = await apiFetch(`${BASE_URL}/newsletter/subscribe`, {
+    method:  'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body:    JSON.stringify({ email }),
+  })
+  const data = await res.json()
+  if (!res.ok) throw new Error(data.message || 'Failed to subscribe')
+  return data
+}
+
 export async function deleteReview(slug, reviewId) {
   const res = await apiFetch(`${BASE_URL}/products/${slug}/reviews/${reviewId}`, { method: 'DELETE' })
   const data = await res.json()
