@@ -91,7 +91,11 @@ export default function ProductDetail() {
 
             <div className="mb-6">
               <h2 className="text-forest font-semibold text-sm mb-2">What's inside</h2>
-              <p className="text-gray-400 text-sm leading-relaxed">{product.items.join(', ')}</p>
+              <ul className="text-gray-400 text-sm leading-relaxed space-y-1">
+                {product.items.map((item, i) => (
+                  <li key={i}>{item}</li>
+                ))}
+              </ul>
             </div>
 
             {/* TODO(exercise): SpecsTable component — render product.specifications
