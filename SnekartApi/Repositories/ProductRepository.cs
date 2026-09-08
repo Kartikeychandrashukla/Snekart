@@ -1,4 +1,5 @@
-using Microsoft.EntityFrameworkCore;
+using System.Data;
+using Dapper;
 using SnekartApi.Data;
 using SnekartApi.Models;
 
@@ -6,76 +7,128 @@ namespace SnekartApi.Repositories
 {
     public class ProductRepository : IProductRepository
     {
-        private readonly SnekartDbContext _db;
+        private readonly IDbConnectionFactory _connectionFactory;
 
-        public ProductRepository(SnekartDbContext db)
+        public ProductRepository(IDbConnectionFactory connectionFactory)
         {
-            _db = db;
+            _connectionFactory = connectionFactory;
         }
 
         public async Task<List<Product>> GetAllAsync()
         {
-            return await _db.Products
-                .OrderBy(p => p.Tier)
-                .ThenBy(p => p.Id)
-                .ToListAsync();
+            using var conn = _connectionFactory.CreateConnection();
+
+            var products = await conn.QueryAsync<Product>(
+                "usp_Product_GetAll",
+                commandType: CommandType.StoredProcedure);
+
+            return products.ToList();
         }
 
         public async Task<Product?> GetByIdAsync(int id)
         {
-            return await _db.Products.FindAsync(id);
+            using var conn = _connectionFactory.CreateConnection();
+
+            return await conn.QueryFirstOrDefaultAsync<Product>(
+                "usp_Product_GetById",
+                new { Id = id },
+                commandType: CommandType.StoredProcedure);
         }
 
         public async Task<Product?> GetBySlugAsync(string slug)
         {
-            return await _db.Products.FirstOrDefaultAsync(p => p.Slug == slug);
+            using var conn = _connectionFactory.CreateConnection();
+
+            return await conn.QueryFirstOrDefaultAsync<Product>(
+                "usp_Product_GetBySlug",
+                new { Slug = slug },
+                commandType: CommandType.StoredProcedure);
         }
 
+        // `ids` goes through IntListTypeHandler the same as any other List<int> parameter —
+        // it arrives at the SP as a JSON array string, unpacked server-side with OPENJSON
+        // (SQL Server has no array parameter type, same reason the array columns are JSON).
         public async Task<List<Product>> GetByIdsAsync(List<int> ids)
         {
-            return await _db.Products.Where(p => ids.Contains(p.Id)).ToListAsync();
+            using var conn = _connectionFactory.CreateConnection();
+
+            var products = await conn.QueryAsync<Product>(
+                "usp_Product_GetByIds",
+                new { Ids = ids },
+                commandType: CommandType.StoredProcedure);
+
+            return products.ToList();
         }
 
         public async Task AddAsync(Product product)
         {
-            _db.Products.Add(product);
-            await _db.SaveChangesAsync();
+            using var conn = _connectionFactory.CreateConnection();
+
+            await conn.ExecuteAsync(
+                "usp_Product_Add",
+                new
+                {
+                    product.Tier,
+                    product.TierLabel,
+                    product.Name,
+                    product.Slug,
+                    product.Emotion,
+                    product.Festival,
+                    product.Occasion,
+                    product.Price,
+                    product.CostPrice,
+                    product.Description,
+                    product.Items,
+                    product.Image,
+                    product.Images,
+                    product.Specifications,
+                    product.SellerName,
+                    product.SellerRating,
+                    product.Badge,
+                    product.InStock
+                },
+                commandType: CommandType.StoredProcedure);
         }
 
         public async Task<bool> UpdateAsync(int id, Product product)
         {
-            var existing = await _db.Products.FindAsync(id);
-            if (existing == null) return false;
+            using var conn = _connectionFactory.CreateConnection();
 
-            existing.Tier        = product.Tier;
-            existing.TierLabel   = product.TierLabel;
-            existing.Name        = product.Name;
-            existing.Slug        = product.Slug;
-            existing.Emotion     = product.Emotion;
-            existing.Price       = product.Price;
-            existing.CostPrice   = product.CostPrice;
-            existing.Description = product.Description;
-            existing.Items       = product.Items;
-            existing.Image       = product.Image;
-            existing.Images      = product.Images;
-            existing.Specifications = product.Specifications;
-            existing.SellerName  = product.SellerName;
-            existing.SellerRating = product.SellerRating;
-            existing.Badge       = product.Badge;
-            existing.InStock     = product.InStock;
-
-            await _db.SaveChangesAsync();
-            return true;
+            return await conn.ExecuteScalarAsync<bool>(
+                "usp_Product_Update",
+                new
+                {
+                    Id = id,
+                    product.Tier,
+                    product.TierLabel,
+                    product.Name,
+                    product.Slug,
+                    product.Emotion,
+                    product.Festival,
+                    product.Occasion,
+                    product.Price,
+                    product.CostPrice,
+                    product.Description,
+                    product.Items,
+                    product.Image,
+                    product.Images,
+                    product.Specifications,
+                    product.SellerName,
+                    product.SellerRating,
+                    product.Badge,
+                    product.InStock
+                },
+                commandType: CommandType.StoredProcedure);
         }
 
         public async Task<bool> DeleteAsync(int id)
         {
-            var existing = await _db.Products.FindAsync(id);
-            if (existing == null) return false;
+            using var conn = _connectionFactory.CreateConnection();
 
-            _db.Products.Remove(existing);
-            await _db.SaveChangesAsync();
-            return true;
+            return await conn.ExecuteScalarAsync<bool>(
+                "usp_Product_Delete",
+                new { Id = id },
+                commandType: CommandType.StoredProcedure);
         }
     }
 }

@@ -294,3 +294,39 @@ export async function deleteReview(slug, reviewId) {
   if (!res.ok) throw new Error(data.message || 'Failed to delete review')
   return data
 }
+
+// type is one of 'Emotion' | 'Festival' | 'Occasion'
+export async function getCategories(type) {
+  const res = await apiFetch(`${BASE_URL}/categories?type=${type}`)
+  if (!res.ok) return []
+  return res.json()
+}
+
+export async function createCategory({ type, name }) {
+  const res = await apiFetch(`${BASE_URL}/categories`, {
+    method:  'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body:    JSON.stringify({ type, name }),
+  })
+  const data = await res.json()
+  if (!res.ok) throw new Error(data.message || 'Failed to create category')
+  return data
+}
+
+export async function updateCategory(id, { type, name }) {
+  const res = await apiFetch(`${BASE_URL}/categories/${id}`, {
+    method:  'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body:    JSON.stringify({ type, name }),
+  })
+  const data = await res.json()
+  if (!res.ok) throw new Error(data.message || 'Failed to update category')
+  return data
+}
+
+export async function deleteCategory(id) {
+  const res = await apiFetch(`${BASE_URL}/categories/${id}`, { method: 'DELETE' })
+  const data = await res.json()
+  if (!res.ok) throw new Error(data.message || 'Failed to delete category')
+  return data
+}

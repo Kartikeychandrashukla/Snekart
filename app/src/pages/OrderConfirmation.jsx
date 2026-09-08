@@ -30,7 +30,7 @@ export default function OrderConfirmation() {
     return (
       <div className="bg-cream min-h-screen flex flex-col items-center justify-center gap-4">
         <p className="text-forest font-semibold">Order not found</p>
-        <Link to="/shop" className="bg-forest text-white px-6 py-3 rounded-xl text-sm font-medium">
+        <Link to="/emotions" className="bg-forest text-white px-6 py-3 rounded-xl text-sm font-medium">
           Go to Shop
         </Link>
       </div>
@@ -108,7 +108,7 @@ export default function OrderConfirmation() {
 
         {/* Actions */}
         <div className="flex flex-col sm:flex-row gap-3">
-          <Link to="/shop" className="flex-1 bg-forest text-white text-center font-semibold py-3.5 rounded-xl hover:bg-forest/90 transition-colors">
+          <Link to="/emotions" className="flex-1 bg-forest text-white text-center font-semibold py-3.5 rounded-xl hover:bg-forest/90 transition-colors">
             Continue Shopping
           </Link>
           <Link to="/" className="flex-1 bg-white border border-taupe text-forest text-center font-semibold py-3.5 rounded-xl hover:bg-cream transition-colors">

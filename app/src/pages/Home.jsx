@@ -1,97 +1,6 @@
 import { Link } from 'react-router-dom'
 import { useProducts } from '../context/ProductsContext'
 import heroImage from '../assets/hero.png'
-// ── Emotion data ──────────────────────────────────────────────────────────────
-const emotions = [
-  { id: 'happy',       label: 'Happy' },
-  { id: 'loved',       label: 'Loved' },
-  { id: 'anxious',     label: 'Anxious' },
-  { id: 'sad',         label: 'Sad' },
-  { id: 'calm',        label: 'Calm' },
-  { id: 'overwhelmed', label: 'Overwhelmed' },
-  { id: 'festive', label: 'Festive' },
-  { id: 'occasion', label: 'Occasion' },
-
-]
-
-// ── Face SVGs (matching the mockup line-drawn circles) ────────────────────────
-function FaceSVG({ type }) {
-  const base = "w-12 h-12 text-forest/70"
-  const faces = {
-    happy: (
-      <svg className={base} viewBox="0 0 44 44" fill="none" stroke="currentColor" strokeWidth="1.5">
-        <circle cx="22" cy="22" r="20"/>
-        <path d="M14 26 Q22 33 30 26" strokeLinecap="round"/>
-        <circle cx="16" cy="18" r="2" fill="currentColor" stroke="none"/>
-        <circle cx="28" cy="18" r="2" fill="currentColor" stroke="none"/>
-      </svg>
-    ),
-    loved: (
-      <svg className={base} viewBox="0 0 44 44" fill="none" stroke="currentColor" strokeWidth="1.5">
-        <circle cx="22" cy="22" r="20"/>
-        <path d="M14 25 Q22 32 30 25" strokeLinecap="round"/>
-        <path d="M15 16 Q16 13 18 15 Q19 13 21 16 Q18 19 15 16Z" fill="currentColor" stroke="none"/>
-        <path d="M23 16 Q24 13 26 15 Q27 13 29 16 Q26 19 23 16Z" fill="currentColor" stroke="none"/>
-      </svg>
-    ),
-    anxious: (
-      <svg className={base} viewBox="0 0 44 44" fill="none" stroke="currentColor" strokeWidth="1.5">
-        <circle cx="22" cy="22" r="20"/>
-        <path d="M14 29 Q22 23 30 29" strokeLinecap="round"/>
-        <path d="M14 17 L18 19" strokeLinecap="round"/>
-        <path d="M30 17 L26 19" strokeLinecap="round"/>
-        <circle cx="17" cy="21" r="1.5" fill="currentColor" stroke="none"/>
-        <circle cx="27" cy="21" r="1.5" fill="currentColor" stroke="none"/>
-      </svg>
-    ),
-    sad: (
-      <svg className={base} viewBox="0 0 44 44" fill="none" stroke="currentColor" strokeWidth="1.5">
-        <circle cx="22" cy="22" r="20"/>
-        <path d="M14 30 Q22 23 30 30" strokeLinecap="round"/>
-        <circle cx="16" cy="19" r="1.5" fill="currentColor" stroke="none"/>
-        <circle cx="28" cy="19" r="1.5" fill="currentColor" stroke="none"/>
-        <circle cx="29" cy="24" r="1.5" fill="currentColor" stroke="none" opacity="0.4"/>
-      </svg>
-    ),
-    calm: (
-      <svg className={base} viewBox="0 0 44 44" fill="none" stroke="currentColor" strokeWidth="1.5">
-        <circle cx="22" cy="22" r="20"/>
-        <path d="M15 26 Q22 30 29 26" strokeLinecap="round"/>
-        <path d="M14 18 Q17 16 20 18" strokeLinecap="round"/>
-        <path d="M24 18 Q27 16 30 18" strokeLinecap="round"/>
-      </svg>
-    ),
-    overwhelmed: (
-      <svg className={base} viewBox="0 0 44 44" fill="none" stroke="currentColor" strokeWidth="1.5">
-        <circle cx="22" cy="22" r="20"/>
-        <line x1="15" y1="27" x2="29" y2="27" strokeLinecap="round"/>
-        <circle cx="16" cy="19" r="1.5" fill="currentColor" stroke="none"/>
-        <circle cx="28" cy="19" r="1.5" fill="currentColor" stroke="none"/>
-        <path d="M18 13 Q22 10 26 13" strokeLinecap="round"/>
-      </svg>
-    ),
-    festive: (
-  <svg className={base} viewBox="0 0 44 44" fill="none" stroke="currentColor" strokeWidth="1.5">
-    <circle cx="22" cy="22" r="20"/>
-    <path d="M13 26 Q22 34 31 26" strokeLinecap="round"/>
-    <path d="M15 16 L17.5 19 M15 19 L17.5 16" strokeLinecap="round"/>
-    <path d="M29 16 L26.5 19 M29 19 L26.5 16" strokeLinecap="round"/>
-    <path d="M22 6 L22 10 M18.5 7 L19.5 10.5 M25.5 7 L24.5 10.5" strokeLinecap="round"/>
-  </svg>
-),
-    occasion: (
-      <svg className={base} viewBox="0 0 44 44" fill="none" stroke="currentColor" strokeWidth="1.5">
-        <rect x="10" y="18" width="24" height="16" rx="1.5"/>
-        <path d="M10 24 L34 24" strokeLinecap="round"/>
-        <path d="M22 18 L22 34" strokeLinecap="round"/>
-        <path d="M22 18 Q15 18 15 13 Q15 10 18 10 Q22 10 22 18Z"/>
-        <path d="M22 18 Q29 18 29 13 Q29 10 26 10 Q22 10 22 18Z"/>
-      </svg>
-    ),
-
-  }
-  return faces[type] || null
-}
 
 // ── Value prop icons ───────────────────────────────────────────────────────────
 function LeafIcon()  { return <svg className="w-6 h-6 text-forest/60" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 3c-4.97 0-9 3.185-9 7.115C3 14.04 7.03 17.23 12 17.23c1.903 0 3.674-.485 5.16-1.319L21 18l-1.34-3.93C20.625 12.96 21 11.81 21 10.115 21 6.185 16.97 3 12 3z"/></svg> }
@@ -130,7 +39,7 @@ export default function Home() {
               Personalized wellness kits crafted for every emotion and every you.
             </p>
             <Link
-              to="/shop"
+              to="/emotions"
               className="inline-block bg-forest text-white text-sm font-medium px-7 py-3 rounded-lg hover:bg-forest/90 transition-colors"
             >
               Explore Kits
@@ -165,24 +74,28 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── EMOTION GRID ─────────────────────────────────────────────────── */}
+      {/* ── SHOP BY — three ways in ──────────────────────────────────────── */}
       <section className="bg-white py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-8">
           <h2 className="text-3xl font-bold text-forest text-center mb-2">
-            Wellness for Every Emotion
+            Three Ways to Find Your Kit
           </h2>
           <p className="text-gray-400 text-center text-sm mb-10">
-            Because every feeling deserves the right support.
+            Shop by how you feel, what you're celebrating, or what the moment calls for.
           </p>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
-            {emotions.map(e => (
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+            {[
+              { to: '/emotions',  title: 'Shop by Emotion',  desc: 'Kits matched to how you feel right now.' },
+              { to: '/festivals', title: 'Shop by Festival', desc: 'Kits made for the festivities.' },
+              { to: '/occasions', title: 'Shop by Occasion', desc: 'The right gift for the moment.' },
+            ].map(card => (
               <Link
-                key={e.id}
-                to={`/emotions?e=${e.id}`}
-                className="flex flex-col items-center gap-3 py-7 hover:scale-[1.03] transition-transform duration-200"
+                key={card.to}
+                to={card.to}
+                className="bg-cream border border-taupe rounded-2xl p-8 text-center hover:border-forest hover:shadow-sm transition-all duration-200"
               >
-                <FaceSVG type={e.id} />
-                <span className="text-forest font-semibold text-sm">{e.label}</span>
+                <h3 className="text-forest font-bold text-lg mb-1.5">{card.title}</h3>
+                <p className="text-gray-400 text-sm">{card.desc}</p>
               </Link>
             ))}
           </div>
@@ -202,7 +115,7 @@ export default function Home() {
               Each kit is mindfully designed with products that support, uplift and bring balance to your emotional wellbeing.
             </p>
             <Link
-              to="/shop"
+              to="/emotions"
               className="inline-block bg-forest text-white text-sm font-medium px-6 py-3 rounded-lg hover:bg-forest/90 transition-colors"
             >
               Shop All Kits
@@ -212,7 +125,7 @@ export default function Home() {
           {/* Right kit images */}
           <div className="w-full lg:flex-1 min-w-0 flex gap-4 overflow-x-auto pb-1">
             {featuredKits.map(kit => (
-              <Link key={kit.id} to={`/shop?kit=${kit.slug}`} className="shrink-0 group">
+              <Link key={kit.id} to={`/shop/${kit.slug}`} className="shrink-0 group">
                 <div className="relative w-44 h-52 rounded-xl overflow-hidden shadow-sm">
                   <img
                     src={kit.image}

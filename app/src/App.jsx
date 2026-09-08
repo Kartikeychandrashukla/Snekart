@@ -2,8 +2,9 @@ import { lazy, Suspense } from 'react'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import RootLayout from './layouts/RootLayout'
 import Home from './pages/Home'
-import Shop from './pages/Shop'
 import Emotions from './pages/Emotions'
+import Festivals from './pages/Festivals'
+import Occasions from './pages/Occasions'
 import HowItWorks from './pages/HowItWorks'
 import AboutUs from './pages/AboutUs'
 import Blog from './pages/Blog'
@@ -26,7 +27,6 @@ export default function App() {
       <Routes>
         <Route path="/" element={<RootLayout />}>
           <Route index element={<Home />} />
-          <Route path="shop" element={<Shop />} />
           <Route
             path="shop/:slug"
             element={
@@ -36,6 +36,8 @@ export default function App() {
             }
           />
           <Route path="emotions" element={<Emotions />} />
+          <Route path="festivals" element={<Festivals />} />
+          <Route path="occasions" element={<Occasions />} />
           <Route path="how-it-works" element={<HowItWorks />} />
           <Route path="about" element={<AboutUs />} />
           <Route path="blog" element={<Blog />} />

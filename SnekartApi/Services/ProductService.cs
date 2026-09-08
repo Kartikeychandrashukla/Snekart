@@ -87,6 +87,8 @@ namespace SnekartApi.Services
                 Name        = req.Name,
                 Slug        = string.IsNullOrWhiteSpace(req.Slug) ? Slugify(req.Name) : Slugify(req.Slug),
                 Emotion     = req.Emotion,
+                Festival    = req.Festival,
+                Occasion    = req.Occasion,
                 Price       = req.Price,
                 CostPrice   = req.CostPrice,
                 Description = req.Description,

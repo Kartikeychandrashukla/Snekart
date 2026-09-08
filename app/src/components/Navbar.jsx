@@ -6,8 +6,9 @@ import logo from '../assets/logo.jpeg'
 
 const navLinks = [
   { to: '/',             label: 'Home',         end: true },
-  { to: '/shop',         label: 'Shop' },
-  { to: '/emotions',     label: 'Emotions' },
+  { to: '/emotions',     label: 'Emotions',     accent: true },
+  { to: '/festivals',    label: 'Festivals',    accent: true },
+  { to: '/occasions',    label: 'Occasions',    accent: true },
   { to: '/how-it-works', label: 'How It Works' },
   { to: '/about',        label: 'About Us' },
   { to: '/blog',         label: 'Blog' },
@@ -52,6 +53,8 @@ export default function Navbar() {
                 `text-sm font-medium transition-colors duration-150 ${
                   isActive
                     ? 'text-forest border-b-2 border-forest pb-0.5'
+                    : link.accent
+                    ? 'text-forest bg-peach/50 px-3 py-1.5 rounded-full hover:bg-peach/70'
                     : 'text-gray-500 hover:text-forest'
                 }`
               }
@@ -191,6 +194,8 @@ export default function Navbar() {
                 `text-sm font-medium px-2 py-2.5 rounded-lg transition-colors ${
                   isActive
                     ? 'text-forest bg-cream'
+                    : link.accent
+                    ? 'text-forest bg-peach/50 hover:bg-peach/70'
                     : 'text-gray-500 hover:text-forest hover:bg-cream'
                 }`
               }

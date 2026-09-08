@@ -21,7 +21,7 @@ namespace SnekartApi.Controllers
             // CostPrice is internal margin data — never expose it to anonymous/customer requests
             var publicProducts = products.Select(p => new
             {
-                p.Id, p.Tier, p.TierLabel, p.Name, p.Slug, p.Emotion,
+                p.Id, p.Tier, p.TierLabel, p.Name, p.Slug, p.Emotion, p.Festival, p.Occasion,
                 p.Price, p.Description, p.Items, p.Image, p.Badge, p.InStock,
             });
             return Ok(publicProducts);
@@ -40,6 +40,7 @@ namespace SnekartApi.Controllers
             var publicProduct = new
             {
                 product.Id, product.Tier, product.TierLabel, product.Name, product.Slug, product.Emotion,
+                product.Festival, product.Occasion,
                 product.Price, product.Description, product.Items, product.Image, product.Images,
                 product.Specifications, product.SellerName, product.SellerRating,
                 product.Badge, product.InStock,

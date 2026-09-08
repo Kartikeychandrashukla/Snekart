@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { getProductBySlug } from '../services/api'
 import { useProducts } from '../context/ProductsContext'
-import ProductCard, { Toast, tierStyle, emotionColor, useAddToCart } from '../components/ProductCard'
+import ProductCard, { Toast, tierStyle, emotionBadgeStyle, festivalBadgeStyle, occasionBadgeStyle, deslugify, useAddToCart } from '../components/ProductCard'
 import ReviewsSection from '../components/ReviewSection';
 import ProductImageGallery from '../components/ProductImageGallery'
 export default function ProductDetail() {
@@ -25,7 +25,12 @@ export default function ProductDetail() {
   const relatedProducts = useMemo(() => {
     if (!product) return []
     return products
-      .filter(p => p.id !== product.id && (p.tier === product.tier || p.emotion.some(e => product.emotion.includes(e))))
+      .filter(p => p.id !== product.id && (
+        p.tier === product.tier ||
+        p.emotion.some(e => product.emotion.includes(e)) ||
+        p.festival?.some(f => product.festival?.includes(f)) ||
+        p.occasion?.some(o => product.occasion?.includes(o))
+      ))
       .slice(0, 4)
   }, [products, product])
 
@@ -46,7 +51,7 @@ export default function ProductDetail() {
     return (
       <div className="bg-cream min-h-screen flex flex-col items-center justify-center gap-4 py-20">
         <p className="text-gray-400">This kit doesn't exist, or has been taken down.</p>
-        <Link to="/shop" className="text-forest text-sm font-semibold hover:underline">← Back to Shop</Link>
+        <Link to="/emotions" className="text-forest text-sm font-semibold hover:underline">← Back to Shop</Link>
       </div>
     )
   }
@@ -55,7 +60,7 @@ export default function ProductDetail() {
     <div className="bg-cream min-h-screen">
       <div className="max-w-6xl mx-auto px-4 sm:px-8 py-10">
 
-        <Link to="/shop" className="text-gray-400 text-sm hover:text-forest transition-colors">
+        <Link to="/emotions" className="text-gray-400 text-sm hover:text-forest transition-colors">
           ← Back to Shop
         </Link>
 
@@ -74,8 +79,18 @@ export default function ProductDetail() {
                 {product.tierLabel}
               </span>
               {product.emotion.map(e => (
-                <span key={e} className={`text-xs px-2.5 py-0.5 rounded-full capitalize ${emotionColor[e]}`}>
-                  {e}
+                <span key={`e-${e}`} className={`text-xs px-2.5 py-0.5 rounded-full ${emotionBadgeStyle}`}>
+                  {deslugify(e)}
+                </span>
+              ))}
+              {product.festival?.map(f => (
+                <span key={`f-${f}`} className={`text-xs px-2.5 py-0.5 rounded-full ${festivalBadgeStyle}`}>
+                  {deslugify(f)}
+                </span>
+              ))}
+              {product.occasion?.map(o => (
+                <span key={`o-${o}`} className={`text-xs px-2.5 py-0.5 rounded-full ${occasionBadgeStyle}`}>
+                  {deslugify(o)}
                 </span>
               ))}
               {product.badge && (

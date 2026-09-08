@@ -47,7 +47,7 @@ export default function Checkout() {
     return (
       <div className="bg-cream min-h-screen flex flex-col items-center justify-center gap-4 text-center px-8">
         <p className="text-forest font-semibold text-xl">Your cart is empty</p>
-        <Link to="/shop" className="bg-forest text-white px-6 py-3 rounded-xl text-sm font-medium hover:bg-forest/90 transition-colors">
+        <Link to="/emotions" className="bg-forest text-white px-6 py-3 rounded-xl text-sm font-medium hover:bg-forest/90 transition-colors">
           Go to Shop
         </Link>
       </div>

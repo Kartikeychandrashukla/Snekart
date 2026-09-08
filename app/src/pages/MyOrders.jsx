@@ -46,7 +46,7 @@ export default function MyOrders() {
           <div className="text-center py-20">
             <p className="text-forest font-semibold text-lg mb-2">No orders yet</p>
             <p className="text-gray-400 text-sm mb-6">Your orders will appear here after you shop</p>
-            <Link to="/shop" className="bg-forest text-white px-6 py-3 rounded-xl text-sm font-medium hover:bg-forest/90 transition-colors">
+            <Link to="/emotions" className="bg-forest text-white px-6 py-3 rounded-xl text-sm font-medium hover:bg-forest/90 transition-colors">
               Start Shopping
             </Link>
           </div>

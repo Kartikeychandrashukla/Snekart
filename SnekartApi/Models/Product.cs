@@ -8,6 +8,8 @@ namespace SnekartApi.Models
         public string Name { get; set; } = "";
         public string Slug { get; set; } = "";
         public List<string> Emotion { get; set; } = new();
+        public List<string> Festival { get; set; } = new();
+        public List<string> Occasion { get; set; } = new();
         public decimal Price { get; set; }
         public decimal CostPrice { get; set; }
         public string Description { get; set; } = "";

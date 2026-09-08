@@ -42,7 +42,7 @@ export default function Cart() {
 
           {/* Continue shopping */}
           <Link
-            to="/shop"
+            to="/emotions"
             className="inline-flex items-center gap-2 text-forest text-sm font-medium mt-2 hover:underline"
           >
             <span>←</span> Continue Shopping
@@ -215,7 +215,7 @@ function EmptyCart() {
         <p className="text-gray-400 text-sm">Find a kit that speaks to how you feel right now.</p>
       </div>
       <Link
-        to="/shop"
+        to="/emotions"
         className="bg-forest text-white font-medium px-7 py-3 rounded-xl hover:bg-forest/90 transition-colors"
       >
         Explore Kits

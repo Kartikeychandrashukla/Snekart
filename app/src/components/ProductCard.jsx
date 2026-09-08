@@ -9,16 +9,16 @@ export const tierStyle = {
   3: 'bg-forest text-white',
 }
 
-export const emotionColor = {
-  happy:       'bg-warm/60 text-forest',
-  loved:       'bg-peach/60 text-forest',
-  anxious:     'bg-lavender/80 text-forest',
-  sad:         'bg-dusty/80 text-forest',
-  calm:        'bg-sage/60 text-forest',
-  overwhelmed: 'bg-taupe text-forest',
-  festive: 'bg-marigold/60 text-forest',
-  occasion: 'bg-blush/60 text-forest',
+// One consistent color per category TYPE rather than per value — Emotion/Festival/Occasion
+// values are now admin-defined and open-ended, so a fixed per-value map can't cover them all.
+export const emotionBadgeStyle  = 'bg-lavender/70 text-forest'
+export const festivalBadgeStyle = 'bg-marigold/60 text-forest'
+export const occasionBadgeStyle = 'bg-blush/60 text-forest'
 
+// Category tag values are slugs (e.g. "raksha-bandhan") — this turns them back into a
+// readable label ("Raksha Bandhan") for display without needing a slug→name lookup.
+export function deslugify(slug) {
+  return slug.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
 }
 
 // ── Hook — lives in parent pages only ────────────────────────────────────────
@@ -84,8 +84,18 @@ export default function ProductCard({ product, onAdd, isAdmin, onEdit }) {
             {product.tierLabel}
           </span>
           {product.emotion.map(e => (
-            <span key={e} className={`text-xs px-2.5 py-0.5 rounded-full capitalize ${emotionColor[e]}`}>
-              {e}
+            <span key={`e-${e}`} className={`text-xs px-2.5 py-0.5 rounded-full ${emotionBadgeStyle}`}>
+              {deslugify(e)}
+            </span>
+          ))}
+          {product.festival?.map(f => (
+            <span key={`f-${f}`} className={`text-xs px-2.5 py-0.5 rounded-full ${festivalBadgeStyle}`}>
+              {deslugify(f)}
+            </span>
+          ))}
+          {product.occasion?.map(o => (
+            <span key={`o-${o}`} className={`text-xs px-2.5 py-0.5 rounded-full ${occasionBadgeStyle}`}>
+              {deslugify(o)}
             </span>
           ))}
         </div>

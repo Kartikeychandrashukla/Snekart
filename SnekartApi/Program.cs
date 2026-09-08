@@ -1,5 +1,4 @@
 using System.Threading.RateLimiting;
-using Microsoft.EntityFrameworkCore;
 using SnekartApi.Data;
 using SnekartApi.Middleware;
 using SnekartApi.Models;
@@ -13,13 +12,14 @@ var port = Environment.GetEnvironmentVariable("PORT") ?? "5084";
 builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
 
 
-var pgHost = builder.Configuration["PGHOST"];
-var connectionString = pgHost != null
-    ? $"Host={pgHost};Port={builder.Configuration["PGPORT"]};Database={builder.Configuration["PGDATABASE"]};Username={builder.Configuration["PGUSER"]};Password={builder.Configuration["PGPASSWORD"]}"
-    : builder.Configuration.GetConnectionString("DefaultConnection");
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
-builder.Services.AddDbContext<SnekartDbContext>(options =>
-    options.UseNpgsql(connectionString));
+// Dapper has no DbContext and SQL Server has no built-in migration runner the app can call —
+// repositories ask this factory for a plain ADO.NET connection per call, and the schema/SPs
+// are created out-of-band by running your T-SQL scripts against the database directly.
+builder.Services.AddScoped<IDbConnectionFactory>(_ => new SqlConnectionFactory(connectionString!));
+Dapper.SqlMapper.AddTypeHandler(new StringListTypeHandler());
+Dapper.SqlMapper.AddTypeHandler(new IntListTypeHandler());
 
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 builder.Services.AddScoped<IOrderService, OrderService>();
@@ -33,6 +33,8 @@ builder.Services.AddScoped<IReviewRepository, ReviewRepository>();
 builder.Services.AddScoped<IReviewService, ReviewService>();
 builder.Services.AddScoped<INewsletterRepository,NewsletterRepository>();
 builder.Services.AddScoped<INewsletterService,NewsletterService>();
+builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddHttpClient<IEmailService, EmailService>(client =>
     client.BaseAddress = new Uri("https://api.resend.com/"));
 builder.Services.AddHttpClient<IPaymentService, PaymentService>(client =>
@@ -72,28 +74,40 @@ builder.Services.AddControllers()
 
 var app = builder.Build();
 
+// Schema + stored procedures are expected to already exist (created via your own T-SQL
+// scripts) — there's no EF-style db.Database.Migrate() equivalent here.
 using (var scope = app.Services.CreateScope())
 {
-    var db = scope.ServiceProvider.GetRequiredService<SnekartDbContext>();
-    db.Database.Migrate();
+    var authRepository = scope.ServiceProvider.GetRequiredService<IAuthRepository>();
+    var categoryRepository = scope.ServiceProvider.GetRequiredService<ICategoryRepository>();
 
-    if (!db.Products.Any())
+    // Categories are structural taxonomy, not admin-authored content — seeding them if the
+    // Emotion type is empty is safe even after this has run once, since an admin emptying
+    // every category is a different (and much rarer) situation than "deleted some products".
+    var existingCategories = await categoryRepository.GetByTypeAsync("Emotion");
+    if (existingCategories.Count == 0)
     {
-        db.Products.AddRange(ProductSeedData.GetSeedProducts());
-        db.SaveChanges();
+        foreach (var category in CategorySeedData.GetSeedCategories())
+        {
+            await categoryRepository.AddAsync(category);
+        }
     }
 
-    if (!db.BlogPosts.Any())
-    {
-        var productIdBySlug = db.Products.ToDictionary(p => p.Slug, p => p.Id);
-        db.BlogPosts.AddRange(BlogSeedData.GetSeedPosts(productIdBySlug));
-        db.SaveChanges();
-    }
+    // Products and blog posts are NOT re-seeded here on purpose — this used to run "if the
+    // table is empty, refill it with demo data" on every startup, which meant deleting every
+    // product/post through the admin dashboard never actually stuck: the next restart saw an
+    // empty table and silently put the demo catalog right back. Now that products/posts are
+    // managed for real, an empty table just means empty — run Data/ProductSeedData.cs and
+    // Data/BlogSeedData.cs manually (e.g. via a one-off script) if you ever want the demo
+    // catalog back for testing.
 
-    if (!db.Customers.Any(c => c.Level == "admin"))
+    // Original EF check was "any customer at admin level" — narrowed here to this specific
+    // seed email since the Dapper repositories don't expose a generic "any admin" lookup.
+    var existingAdmin = await authRepository.GetByEmailAsync("admin@snekart.in");
+    if (existingAdmin == null)
     {
         var adminPassword = builder.Configuration["AdminSeedPassword"] ?? "snekart2025";
-        db.Customers.Add(new Customer
+        await authRepository.CreateCustomerAsync(new Customer
         {
             Name         = "Admin",
             Email        = "admin@snekart.in",
@@ -101,7 +115,6 @@ using (var scope = app.Services.CreateScope())
             Level        = "admin",
             CreatedAt    = DateTime.UtcNow,
         });
-        db.SaveChanges();
     }
 }
 

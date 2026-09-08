@@ -1,3 +1,5 @@
+using System.Data;
+using Dapper;
 using Microsoft.AspNetCore.Mvc;
 using SnekartApi.Data;
 using SnekartApi.Middleware;
@@ -7,9 +9,9 @@ namespace SnekartApi.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class UploadsController(SnekartDbContext db) : ControllerBase
+    public class UploadsController(IDbConnectionFactory connectionFactory) : ControllerBase
     {
-        private readonly SnekartDbContext _db = db;
+        private readonly IDbConnectionFactory _connectionFactory = connectionFactory;
         private static readonly string[] AllowedExtensions = { ".jpg", ".jpeg", ".png", ".webp", ".gif" };
         private static readonly Dictionary<string, string> ContentTypes = new()
         {
@@ -47,8 +49,11 @@ namespace SnekartApi.Controllers
                     ContentType = ContentTypes[ext],
                 };
 
-                _db.ProductImages.Add(image);
-                await _db.SaveChangesAsync();
+                using var conn = _connectionFactory.CreateConnection();
+                await conn.ExecuteAsync(
+                    "usp_ProductImage_Add",
+                    new { image.Id, image.Data, image.ContentType },
+                    commandType: CommandType.StoredProcedure);
 
                 return Ok(new { message = "Image uploaded successfully.", url = $"/api/uploads/image/{image.Id}" });
             }
@@ -85,8 +90,11 @@ namespace SnekartApi.Controllers
                     ContentType = ContentTypes[ext],
                 };
 
-                _db.ProductImages.Add(image);
-                await _db.SaveChangesAsync();
+                using var conn = _connectionFactory.CreateConnection();
+                await conn.ExecuteAsync(
+                    "usp_ProductImage_Add",
+                    new { image.Id, image.Data, image.ContentType },
+                    commandType: CommandType.StoredProcedure);
 
                 return Ok(new { message = "Image uploaded successfully.", url = $"/api/uploads/image/{image.Id}" });
             }
@@ -99,7 +107,12 @@ namespace SnekartApi.Controllers
         [HttpGet("image/{id}")]
         public async Task<IActionResult> GetImage(Guid id)
         {
-            var image = await _db.ProductImages.FindAsync(id);
+            using var conn = _connectionFactory.CreateConnection();
+            var image = await conn.QueryFirstOrDefaultAsync<ProductImage>(
+                "usp_ProductImage_GetById",
+                new { Id = id },
+                commandType: CommandType.StoredProcedure);
+
             if (image == null) return NotFound();
             return File(image.Data, image.ContentType);
         }
@@ -108,12 +121,14 @@ namespace SnekartApi.Controllers
         [RequireAdminSession]
         public async Task<IActionResult> DeleteImage(Guid id)
         {
-            var image = await _db.ProductImages.FindAsync(id);
-            if (image == null) return NotFound();
+            using var conn = _connectionFactory.CreateConnection();
 
-            _db.ProductImages.Remove(image);
-            await _db.SaveChangesAsync();
+            var deleted = await conn.ExecuteScalarAsync<bool>(
+                "usp_ProductImage_Delete",
+                new { Id = id },
+                commandType: CommandType.StoredProcedure);
 
+            if (!deleted) return NotFound();
             return NoContent();
         }
 
@@ -141,8 +156,11 @@ namespace SnekartApi.Controllers
                     ContentType = VideoContentTypes[ext],
                 };
 
-                _db.Videos.Add(video);
-                await _db.SaveChangesAsync();
+                using var conn = _connectionFactory.CreateConnection();
+                await conn.ExecuteAsync(
+                    "usp_Video_Add",
+                    new { video.Id, video.Data, video.ContentType },
+                    commandType: CommandType.StoredProcedure);
 
                 return Ok(new { message = "Video uploaded successfully.", url = $"/api/uploads/video/{video.Id}" });
             }
@@ -155,7 +173,12 @@ namespace SnekartApi.Controllers
         [HttpGet("video/{id}")]
         public async Task<IActionResult> GetVideo(Guid id)
         {
-            var video = await _db.Videos.FindAsync(id);
+            using var conn = _connectionFactory.CreateConnection();
+            var video = await conn.QueryFirstOrDefaultAsync<Video>(
+                "usp_Video_GetById",
+                new { Id = id },
+                commandType: CommandType.StoredProcedure);
+
             if (video == null) return NotFound();
             return File(video.Data, video.ContentType, enableRangeProcessing: true);
         }
@@ -164,12 +187,14 @@ namespace SnekartApi.Controllers
         [RequireAdminSession]
         public async Task<IActionResult> DeleteVideo(Guid id)
         {
-            var video = await _db.Videos.FindAsync(id);
-            if (video == null) return NotFound();
+            using var conn = _connectionFactory.CreateConnection();
 
-            _db.Videos.Remove(video);
-            await _db.SaveChangesAsync();
+            var deleted = await conn.ExecuteScalarAsync<bool>(
+                "usp_Video_Delete",
+                new { Id = id },
+                commandType: CommandType.StoredProcedure);
 
+            if (!deleted) return NotFound();
             return NoContent();
         }
     }

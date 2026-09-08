@@ -1,53 +1,72 @@
-using Microsoft.EntityFrameworkCore;
+using System.Data;
+using Dapper;
 using SnekartApi.Data;
 using SnekartApi.Models;
 
-
 namespace SnekartApi.Repositories
 {
-    public class ReviewRepository: IReviewRepository
+    public class ReviewRepository : IReviewRepository
     {
-        private readonly SnekartDbContext _db;
-        public ReviewRepository(SnekartDbContext db)
+        private readonly IDbConnectionFactory _connectionFactory;
+
+        public ReviewRepository(IDbConnectionFactory connectionFactory)
         {
-            _db=db;
+            _connectionFactory = connectionFactory;
         }
 
         public async Task<List<Review>> GetByProductIdAsync(int productId)
         {
-             return await _db.Reviews
-                .Where(r => r.ProductId == productId)
-                .OrderByDescending(r => r.CreatedAt)
-                .ToListAsync();
+            using var conn = _connectionFactory.CreateConnection();
+
+            var reviews = await conn.QueryAsync<Review>(
+                "usp_Review_GetByProduct",
+                new { ProductId = productId },
+                commandType: CommandType.StoredProcedure);
+
+            return reviews.ToList();
         }
 
-        public async  Task AddAsync(Review review)
+        // Review.Images (List<string>) round-trips through StringListTypeHandler as a JSON
+        // array string — Dapper serializes it automatically before it reaches this parameter.
+        public async Task AddAsync(Review review)
         {
-            _db.Reviews.Add(review);
-            await _db.SaveChangesAsync();
+            using var conn = _connectionFactory.CreateConnection();
+
+            await conn.ExecuteAsync(
+                "usp_Review_Add",
+                new
+                {
+                    review.ProductId,
+                    review.CustomerName,
+                    review.Rating,
+                    review.Comment,
+                    review.Images,
+                    review.CreatedAt
+                },
+                commandType: CommandType.StoredProcedure);
         }
 
+        // usp_Review_Delete does the existence check, ProductImages cleanup (via OPENJSON over
+        // the Images column), and the Reviews delete in one round trip, then
+        // SELECT CASE WHEN @@ROWCOUNT > 0 THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT) END;
         public async Task<bool> DeleteAsync(int id)
-{
-    var existing = await _db.Reviews.FindAsync(id);
-    if (existing == null) return false;
+        {
+            using var conn = _connectionFactory.CreateConnection();
 
-    if (existing.Images.Count > 0)
-    {
-        var imageIds = existing.Images
-            .Select(url => Guid.TryParse(url.Split('/').Last(), out var g) ? g : (Guid?)null)
-            .Where(g => g.HasValue)
-            .Select(g => g!.Value)
-            .ToList();
+            return await conn.ExecuteScalarAsync<bool>(
+                "usp_Review_Delete",
+                new { Id = id },
+                commandType: CommandType.StoredProcedure);
+        }
 
-        var images = await _db.ProductImages.Where(img => imageIds.Contains(img.Id)).ToListAsync();
-        _db.ProductImages.RemoveRange(images);
-    }
+        public async Task<decimal?> GetAverageRatingAsync(int productId)
+        {
+            using var conn = _connectionFactory.CreateConnection();
 
-    _db.Reviews.Remove(existing);
-    await _db.SaveChangesAsync();
-    return true;
-}
-
+            return await conn.ExecuteScalarAsync<decimal?>(
+                "usp_Review_GetAverageRating",
+                new { ProductId = productId },
+                commandType: CommandType.StoredProcedure);
+        }
     }
 }

@@ -1,12 +1,17 @@
-import { useState } from 'react'
-import { createProduct, updateProduct, deleteProduct, uploadProductImage, deleteUploadedImage } from '../services/api'
-
-const emotionOptions = ['happy', 'loved', 'anxious', 'sad', 'calm', 'overwhelmed','festive','occasion']
+import { useEffect, useState } from 'react'
+import { createProduct, updateProduct, deleteProduct, uploadProductImage, deleteUploadedImage, getCategories } from '../services/api'
 
 const tierOptions = [
   { value: 1, label: 'Starter Kit (₹399–599)' },
   { value: 2, label: 'Core Kit (₹799–1,299)' },
   { value: 3, label: 'Premium Kit (₹1,999–5,000)' },
+]
+
+// Each entry pairs the form field with the Category `type` value the backend expects
+const categoryFields = [
+  { field: 'emotion',  type: 'Emotion',  label: 'Emotions' },
+  { field: 'festival', type: 'Festival', label: 'Festivals' },
+  { field: 'occasion', type: 'Occasion', label: 'Occasions' },
 ]
 
 const MAX_GALLERY_IMAGES = 4 // plus 1 primary image = 5 total
@@ -21,6 +26,8 @@ function toFormState(product) {
     description: product?.description ?? '',
     items:       product?.items?.join('\n') ?? '',
     emotion:     product?.emotion ?? [],
+    festival:    product?.festival ?? [],
+    occasion:    product?.occasion ?? [],
     image:       product?.image ?? '',
     images:      product?.images ?? [],
     badge:       product?.badge ?? '',
@@ -36,6 +43,17 @@ export default function AdminProductModal({ product, onClose, onSaved, onToast }
   const [confirmDelete, setConfirmDelete] = useState(false)
   const [uploading, setUploading] = useState(false)
   const [uploadingGallery, setUploadingGallery] = useState(false)
+  const [categoryOptions, setCategoryOptions] = useState({ Emotion: [], Festival: [], Occasion: [] })
+
+  useEffect(() => {
+    Promise.all(categoryFields.map(c => getCategories(c.type))).then(results => {
+      setCategoryOptions({
+        Emotion:  results[0],
+        Festival: results[1],
+        Occasion: results[2],
+      })
+    })
+  }, [])
 
   function setField(key, value) {
     setForm(f => ({ ...f, [key]: value }))
@@ -91,10 +109,10 @@ export default function AdminProductModal({ product, onClose, onSaved, onToast }
     }
   }
 
-  function toggleEmotion(e) {
+  function toggleCategory(field, slug) {
     setForm(f => ({
       ...f,
-      emotion: f.emotion.includes(e) ? f.emotion.filter(x => x !== e) : [...f.emotion, e],
+      [field]: f[field].includes(slug) ? f[field].filter(x => x !== slug) : [...f[field], slug],
     }))
   }
 
@@ -112,6 +130,8 @@ export default function AdminProductModal({ product, onClose, onSaved, onToast }
       name:        form.name.trim(),
       slug:        form.slug.trim(),
       emotion:     form.emotion,
+      festival:    form.festival,
+      occasion:    form.occasion,
       price:       Number(form.price),
       costPrice:   Number(form.costPrice) || 0,
       description: form.description.trim(),
@@ -291,7 +311,7 @@ export default function AdminProductModal({ product, onClose, onSaved, onToast }
           </div>
 
           <div>
-            <label className="text-xs text-gray-400 mb-1 block">
+            <label className="text-xs text-gray-400 mb-2 block">
               Gallery Images ({form.images.length}/{MAX_GALLERY_IMAGES}) — shown as additional photos on the product page
             </label>
             <div className="flex items-center gap-3 flex-wrap">
@@ -332,25 +352,31 @@ export default function AdminProductModal({ product, onClose, onSaved, onToast }
             </div>
           </div>
 
-          <div>
-            <label className="text-xs text-gray-400 mb-2 block">Emotions</label>
-            <div className="flex gap-2 flex-wrap">
-              {emotionOptions.map(e => (
-                <button
-                  key={e}
-                  type="button"
-                  onClick={() => toggleEmotion(e)}
-                  className={`text-xs px-3 py-1.5 rounded-full border capitalize transition-colors ${
-                    form.emotion.includes(e)
-                      ? 'bg-forest text-white border-forest'
-                      : 'bg-cream text-gray-400 border-taupe hover:border-forest hover:text-forest'
-                  }`}
-                >
-                  {e}
-                </button>
-              ))}
+          {categoryFields.map(({ field, type, label }) => (
+            <div key={field}>
+              <label className="text-xs text-gray-400 mb-2 block">{label}</label>
+              {categoryOptions[type].length === 0 ? (
+                <p className="text-xs text-gray-300">No {label.toLowerCase()} yet — add some from the Categories tab.</p>
+              ) : (
+                <div className="flex gap-2 flex-wrap">
+                  {categoryOptions[type].map(c => (
+                    <button
+                      key={c.id}
+                      type="button"
+                      onClick={() => toggleCategory(field, c.slug)}
+                      className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${
+                        form[field].includes(c.slug)
+                          ? 'bg-forest text-white border-forest'
+                          : 'bg-cream text-gray-400 border-taupe hover:border-forest hover:text-forest'
+                      }`}
+                    >
+                      {c.name}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
-          </div>
+          ))}
 
           <label className="flex items-center gap-2 text-sm text-gray-600">
             <input

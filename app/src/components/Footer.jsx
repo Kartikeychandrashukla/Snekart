@@ -2,8 +2,9 @@ import { Link } from 'react-router-dom'
 import logo from '../assets/logo.jpeg'
 
 const quickLinks = [
-  { to: '/shop',         label: 'Shop All Kits' },
   { to: '/emotions',     label: 'Shop by Emotion' },
+  { to: '/festivals',    label: 'Shop by Festival' },
+  { to: '/occasions',    label: 'Shop by Occasion' },
   { to: '/how-it-works', label: 'How It Works' },
   { to: '/about',        label: 'About Us' },
   { to: '/blog',         label: 'Blog' },
