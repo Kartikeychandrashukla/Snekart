@@ -122,5 +122,10 @@ using (var scope = app.Services.CreateScope())
 app.UseCors("ReactApp");
 app.UseRateLimiter();
 app.UseMiddleware<SessionMiddleware>();
+
+// Lightweight keep-alive / uptime probe. Returns 200 with no DB or auth work,
+// so UptimeRobot can ping it every 5 min cheaply to stop the host idling.
+app.MapGet("/health", () => Results.Text("healthy"));
+
 app.MapControllers();
 app.Run();
