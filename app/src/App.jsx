@@ -5,7 +5,6 @@ import Home from './pages/Home'
 import Emotions from './pages/Emotions'
 import Festivals from './pages/Festivals'
 import Occasions from './pages/Occasions'
-import HowItWorks from './pages/HowItWorks'
 import AboutUs from './pages/AboutUs'
 import Blog from './pages/Blog'
 import BlogPostDetail from './pages/BlogPostDetail'
@@ -38,7 +37,6 @@ export default function App() {
           <Route path="emotions" element={<Emotions />} />
           <Route path="festivals" element={<Festivals />} />
           <Route path="occasions" element={<Occasions />} />
-          <Route path="how-it-works" element={<HowItWorks />} />
           <Route path="about" element={<AboutUs />} />
           <Route path="blog" element={<Blog />} />
           <Route path="blog/:slug" element={<BlogPostDetail />} />

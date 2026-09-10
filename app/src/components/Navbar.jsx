@@ -9,7 +9,6 @@ const navLinks = [
   { to: '/emotions',     label: 'Emotions',     accent: true },
   { to: '/festivals',    label: 'Festivals',    accent: true },
   { to: '/occasions',    label: 'Occasions',    accent: true },
-  { to: '/how-it-works', label: 'How It Works' },
   { to: '/about',        label: 'About Us' },
   { to: '/blog',         label: 'Blog' },
 ]

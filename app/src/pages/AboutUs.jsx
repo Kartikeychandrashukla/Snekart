@@ -157,10 +157,10 @@ export default function AboutUs() {
               Shop by Emotion
             </Link>
             <Link
-              to="/how-it-works"
+              to="/festivals"
               className="border border-sage text-sage font-semibold px-8 py-3.5 rounded-xl hover:bg-white/10 transition-colors"
             >
-              How It Works
+              Shop by Festival
             </Link>
           </div>
         </div>
