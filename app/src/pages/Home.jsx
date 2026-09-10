@@ -28,7 +28,7 @@ export default function Home() {
         className="relative bg-cover bg-center sm:aspect-[3/2]"
         style={{ backgroundImage: `url(${heroImage})` }}
       >
-        <div className="absolute inset-0 bg-cream/70 sm:hidden" />
+        <div className="absolute inset-0 bg-gradient-to-b from-cream via-cream/85 to-cream/25 sm:hidden" />
 
         <div className="relative max-w-7xl mx-auto px-4 sm:px-8 py-16">
           <div className="max-w-xl">
@@ -66,7 +66,7 @@ export default function Home() {
               ].map(b => (
                 <div key={b.label} className="flex flex-col items-center gap-1.5 text-center">
                   <span className="text-forest">{b.icon}</span>
-                  <span className="text-xs text-gray-500 font-medium whitespace-pre-line leading-snug">{b.label}</span>
+                  <span className="text-xs text-black-500 font-medium whitespace-pre-line leading-snug">{b.label}</span>
                 </div>
               ))}
             </div>
