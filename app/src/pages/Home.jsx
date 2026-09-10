@@ -35,7 +35,7 @@ export default function Home() {
             <h1 className="text-5xl lg:text-6xl font-bold text-forest leading-tight mb-5">
               Every Emotion.<br />The Right Care.
             </h1>
-            <p className="text-gray-500 text-lg leading-relaxed mb-8 max-w-md">
+            <p className="text-black text-lg leading-relaxed mb-8 max-w-md">
               Personalized wellness kits crafted for every emotion and every you.
             </p>
             <Link
