@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 import { useProducts } from '../context/ProductsContext'
-import heroImage from '../assets/hero.png'
+import heroImage from '../assets/hero.jpeg'
 
 // ── Value prop icons ───────────────────────────────────────────────────────────
 function LeafIcon()  { return <svg className="w-6 h-6 text-forest/60" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 3c-4.97 0-9 3.185-9 7.115C3 14.04 7.03 17.23 12 17.23c1.903 0 3.674-.485 5.16-1.319L21 18l-1.34-3.93C20.625 12.96 21 11.81 21 10.115 21 6.185 16.97 3 12 3z"/></svg> }
@@ -25,7 +25,7 @@ export default function Home() {
 
       {/* ── HERO ─────────────────────────────────────────────────────────── */}
       <section
-        className="relative bg-cover bg-center sm:aspect-[3/2]"
+        className="relative bg-cover bg-center sm:aspect-[2/1]"
         style={{ backgroundImage: `url(${heroImage})` }}
       >
         <div className="absolute inset-0 bg-gradient-to-b from-cream via-cream/85 to-cream/25 sm:hidden" />
