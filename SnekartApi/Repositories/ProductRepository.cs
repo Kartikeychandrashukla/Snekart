@@ -1,4 +1,3 @@
-using System.Data;
 using Dapper;
 using SnekartApi.Data;
 using SnekartApi.Models;
@@ -18,9 +17,7 @@ namespace SnekartApi.Repositories
         {
             using var conn = _connectionFactory.CreateConnection();
 
-            var products = await conn.QueryAsync<Product>(
-                "usp_Product_GetAll",
-                commandType: CommandType.StoredProcedure);
+            var products = await conn.QueryAsync<Product>("SELECT * FROM usp_product_getall()");
 
             return products.ToList();
         }
@@ -30,9 +27,8 @@ namespace SnekartApi.Repositories
             using var conn = _connectionFactory.CreateConnection();
 
             return await conn.QueryFirstOrDefaultAsync<Product>(
-                "usp_Product_GetById",
-                new { Id = id },
-                commandType: CommandType.StoredProcedure);
+                "SELECT * FROM usp_product_getbyid(@Id)",
+                new { Id = id });
         }
 
         public async Task<Product?> GetBySlugAsync(string slug)
@@ -40,22 +36,21 @@ namespace SnekartApi.Repositories
             using var conn = _connectionFactory.CreateConnection();
 
             return await conn.QueryFirstOrDefaultAsync<Product>(
-                "usp_Product_GetBySlug",
-                new { Slug = slug },
-                commandType: CommandType.StoredProcedure);
+                "SELECT * FROM usp_product_getbyslug(@Slug)",
+                new { Slug = slug });
         }
 
-        // `ids` goes through IntListTypeHandler the same as any other List<int> parameter —
-        // it arrives at the SP as a JSON array string, unpacked server-side with OPENJSON
-        // (SQL Server has no array parameter type, same reason the array columns are JSON).
+        // `ids` is passed as a plain int[] (not List<int>) specifically to bypass the
+        // globally-registered IntListTypeHandler, which would otherwise serialize it to a
+        // JSON string the way it does for List<int> model columns. Npgsql maps int[]
+        // straight onto Postgres's native integer[] parameter type instead.
         public async Task<List<Product>> GetByIdsAsync(List<int> ids)
         {
             using var conn = _connectionFactory.CreateConnection();
 
             var products = await conn.QueryAsync<Product>(
-                "usp_Product_GetByIds",
-                new { Ids = ids },
-                commandType: CommandType.StoredProcedure);
+                "SELECT * FROM usp_product_getbyids(@Ids)",
+                new { Ids = ids.ToArray() });
 
             return products.ToList();
         }
@@ -65,7 +60,7 @@ namespace SnekartApi.Repositories
             using var conn = _connectionFactory.CreateConnection();
 
             await conn.ExecuteAsync(
-                "usp_Product_Add",
+                "SELECT usp_product_add(@Tier, @TierLabel, @Name, @Slug, @Emotion, @Festival, @Occasion, @Price, @CostPrice, @Description, @Items, @Image, @Images, @Specifications, @SellerName, @SellerRating, @Badge, @InStock)",
                 new
                 {
                     product.Tier,
@@ -86,8 +81,7 @@ namespace SnekartApi.Repositories
                     product.SellerRating,
                     product.Badge,
                     product.InStock
-                },
-                commandType: CommandType.StoredProcedure);
+                });
         }
 
         public async Task<bool> UpdateAsync(int id, Product product)
@@ -95,7 +89,7 @@ namespace SnekartApi.Repositories
             using var conn = _connectionFactory.CreateConnection();
 
             return await conn.ExecuteScalarAsync<bool>(
-                "usp_Product_Update",
+                "SELECT usp_product_update(@Id, @Tier, @TierLabel, @Name, @Slug, @Emotion, @Festival, @Occasion, @Price, @CostPrice, @Description, @Items, @Image, @Images, @Specifications, @SellerName, @SellerRating, @Badge, @InStock)",
                 new
                 {
                     Id = id,
@@ -117,8 +111,7 @@ namespace SnekartApi.Repositories
                     product.SellerRating,
                     product.Badge,
                     product.InStock
-                },
-                commandType: CommandType.StoredProcedure);
+                });
         }
 
         public async Task<bool> DeleteAsync(int id)
@@ -126,9 +119,8 @@ namespace SnekartApi.Repositories
             using var conn = _connectionFactory.CreateConnection();
 
             return await conn.ExecuteScalarAsync<bool>(
-                "usp_Product_Delete",
-                new { Id = id },
-                commandType: CommandType.StoredProcedure);
+                "SELECT usp_product_delete(@Id)",
+                new { Id = id });
         }
     }
 }

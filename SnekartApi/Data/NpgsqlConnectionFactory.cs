@@ -1,20 +1,20 @@
 using System.Data;
-using Microsoft.Data.SqlClient;
+using Npgsql;
 
 namespace SnekartApi.Data
 {
-    public class SqlConnectionFactory : IDbConnectionFactory
+    public class NpgsqlConnectionFactory : IDbConnectionFactory
     {
         private readonly string _connectionString;
 
-        public SqlConnectionFactory(string connectionString)
+        public NpgsqlConnectionFactory(string connectionString)
         {
             _connectionString = connectionString;
         }
 
         public IDbConnection CreateConnection()
         {
-            return new SqlConnection(_connectionString);
+            return new NpgsqlConnection(_connectionString);
         }
     }
 }

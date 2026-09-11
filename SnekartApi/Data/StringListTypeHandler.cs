@@ -4,10 +4,11 @@ using Dapper;
 
 namespace SnekartApi.Data
 {
-    // SQL Server has no array type, so List<string> columns (Product.Emotion/.Items/.Images/
-    // .Specifications, BlogPost.Emotion, Review.Images) are stored as an NVARCHAR(MAX) JSON
-    // array (e.g. '["a","b"]'). This handler serializes on the way in and deserializes on the
-    // way out, so the repository code never has to think about the JSON directly.
+    // List<string> columns (Product.Emotion/.Items/.Images/.Specifications, BlogPost.Emotion,
+    // Review.Images) are stored as a JSON-array-in-text column (e.g. '["a","b"]') rather than
+    // a native Postgres array, so this handler works unchanged regardless of the underlying
+    // driver. This handler serializes on the way in and deserializes on the way out, so the
+    // repository code never has to think about the JSON directly.
     public class StringListTypeHandler : SqlMapper.TypeHandler<List<string>>
     {
         public override List<string> Parse(object value)

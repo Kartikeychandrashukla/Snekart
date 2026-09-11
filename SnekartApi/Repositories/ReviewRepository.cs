@@ -1,4 +1,3 @@
-using System.Data;
 using Dapper;
 using SnekartApi.Data;
 using SnekartApi.Models;
@@ -19,9 +18,8 @@ namespace SnekartApi.Repositories
             using var conn = _connectionFactory.CreateConnection();
 
             var reviews = await conn.QueryAsync<Review>(
-                "usp_Review_GetByProduct",
-                new { ProductId = productId },
-                commandType: CommandType.StoredProcedure);
+                "SELECT * FROM usp_review_getbyproduct(@ProductId)",
+                new { ProductId = productId });
 
             return reviews.ToList();
         }
@@ -33,7 +31,7 @@ namespace SnekartApi.Repositories
             using var conn = _connectionFactory.CreateConnection();
 
             await conn.ExecuteAsync(
-                "usp_Review_Add",
+                "SELECT usp_review_add(@ProductId, @CustomerName, @Rating, @Comment, @Images, @CreatedAt)",
                 new
                 {
                     review.ProductId,
@@ -42,21 +40,18 @@ namespace SnekartApi.Repositories
                     review.Comment,
                     review.Images,
                     review.CreatedAt
-                },
-                commandType: CommandType.StoredProcedure);
+                });
         }
 
-        // usp_Review_Delete does the existence check, ProductImages cleanup (via OPENJSON over
-        // the Images column), and the Reviews delete in one round trip, then
-        // SELECT CASE WHEN @@ROWCOUNT > 0 THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT) END;
+        // usp_review_delete does the existence check, productimages cleanup (parsing the
+        // guid out of each URL in the Images column), and the reviews delete in one round trip.
         public async Task<bool> DeleteAsync(int id)
         {
             using var conn = _connectionFactory.CreateConnection();
 
             return await conn.ExecuteScalarAsync<bool>(
-                "usp_Review_Delete",
-                new { Id = id },
-                commandType: CommandType.StoredProcedure);
+                "SELECT usp_review_delete(@Id)",
+                new { Id = id });
         }
 
         public async Task<decimal?> GetAverageRatingAsync(int productId)
@@ -64,9 +59,8 @@ namespace SnekartApi.Repositories
             using var conn = _connectionFactory.CreateConnection();
 
             return await conn.ExecuteScalarAsync<decimal?>(
-                "usp_Review_GetAverageRating",
-                new { ProductId = productId },
-                commandType: CommandType.StoredProcedure);
+                "SELECT usp_review_getaveragerating(@ProductId)",
+                new { ProductId = productId });
         }
     }
 }

@@ -14,10 +14,11 @@ builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
-// Dapper has no DbContext and SQL Server has no built-in migration runner the app can call —
-// repositories ask this factory for a plain ADO.NET connection per call, and the schema/SPs
-// are created out-of-band by running your T-SQL scripts against the database directly.
-builder.Services.AddScoped<IDbConnectionFactory>(_ => new SqlConnectionFactory(connectionString!));
+// Dapper has no DbContext and Postgres has no built-in migration runner the app can call —
+// repositories ask this factory for a plain ADO.NET connection per call, and the schema/
+// functions are created out-of-band by running the scripts in Database/ against the database
+// directly (Database/Tables.sql, then everything under Database/Procedures/).
+builder.Services.AddScoped<IDbConnectionFactory>(_ => new NpgsqlConnectionFactory(connectionString!));
 Dapper.SqlMapper.AddTypeHandler(new StringListTypeHandler());
 Dapper.SqlMapper.AddTypeHandler(new IntListTypeHandler());
 
@@ -74,8 +75,8 @@ builder.Services.AddControllers()
 
 var app = builder.Build();
 
-// Schema + stored procedures are expected to already exist (created via your own T-SQL
-// scripts) — there's no EF-style db.Database.Migrate() equivalent here.
+// Schema + functions are expected to already exist (created via the scripts in Database/) —
+// there's no EF-style db.Database.Migrate() equivalent here.
 using (var scope = app.Services.CreateScope())
 {
     var authRepository = scope.ServiceProvider.GetRequiredService<IAuthRepository>();

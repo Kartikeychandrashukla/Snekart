@@ -1,4 +1,3 @@
-using System.Data;
 using Dapper;
 using SnekartApi.Data;
 using SnekartApi.Models;
@@ -19,20 +18,19 @@ namespace SnekartApi.Repositories
             using var conn = _connectionFactory.CreateConnection();
 
             return await conn.ExecuteScalarAsync<bool>(
-                "usp_Auth_EmailExists",
-                new { Email = email.ToLower() },
-                commandType: CommandType.StoredProcedure);
+                "SELECT usp_auth_emailexists(@Email)",
+                new { Email = email.ToLower() });
         }
 
-        // usp_Customer_Create ends with "SELECT CAST(SCOPE_IDENTITY() AS INT) AS Id;" — SQL
-        // Server's way of handing back an identity column's generated value. No OUTPUT
-        // parameter needed: it's just a scalar SELECT like any other, so ExecuteScalarAsync fits.
+        // usp_customer_create ends with "RETURN new_id;" — Postgres's way of handing back an
+        // identity column's generated value via RETURNING ... INTO. No OUTPUT parameter
+        // needed: it's just a scalar SELECT like any other, so ExecuteScalarAsync fits.
         public async Task<Customer> CreateCustomerAsync(Customer customer)
         {
             using var conn = _connectionFactory.CreateConnection();
 
             customer.Id = await conn.ExecuteScalarAsync<int>(
-                "usp_Customer_Create",
+                "SELECT usp_customer_create(@Name, @Email, @PasswordHash, @Level, @CreatedAt)",
                 new
                 {
                     customer.Name,
@@ -40,8 +38,7 @@ namespace SnekartApi.Repositories
                     customer.PasswordHash,
                     customer.Level,
                     customer.CreatedAt
-                },
-                commandType: CommandType.StoredProcedure);
+                });
 
             return customer;
         }
@@ -51,9 +48,8 @@ namespace SnekartApi.Repositories
             using var conn = _connectionFactory.CreateConnection();
 
             return await conn.QueryFirstOrDefaultAsync<Customer>(
-                "usp_Customer_GetByEmail",
-                new { Email = email.ToLower() },
-                commandType: CommandType.StoredProcedure);
+                "SELECT * FROM usp_customer_getbyemail(@Email)",
+                new { Email = email.ToLower() });
         }
 
         public async Task<Session> CreateSessionAsync(Session session)
@@ -61,35 +57,34 @@ namespace SnekartApi.Repositories
             using var conn = _connectionFactory.CreateConnection();
 
             await conn.ExecuteAsync(
-                "usp_Session_Create",
+                "SELECT usp_session_create(@Token, @CustomerId, @ExpiresAt)",
                 new
                 {
                     session.Token,
                     session.CustomerId,
                     session.ExpiresAt
-                },
-                commandType: CommandType.StoredProcedure);
+                });
 
             return session;
         }
 
         // Multi-mapping (splitting one joined row into Session + Customer) works the same way
-        // regardless of database — it's a Dapper feature, not a Postgres one. Still QueryAsync,
-        // not QueryFirstOrDefaultAsync, because multi-mapping needs the (T1,T2,TReturn) overload.
+        // regardless of database — it's a Dapper feature, not a SQL Server or Postgres one.
+        // Still QueryAsync, not QueryFirstOrDefaultAsync, because multi-mapping needs the
+        // (T1,T2,TReturn) overload.
         public async Task<Session?> GetSessionAsync(string token)
         {
             using var conn = _connectionFactory.CreateConnection();
 
             var sessions = await conn.QueryAsync<Session, Customer, Session>(
-                "usp_Session_GetByToken",
+                "SELECT * FROM usp_session_getbytoken(@Token)",
                 (session, customer) =>
                 {
                     session.Customer = customer;
                     return session;
                 },
                 new { Token = token },
-                splitOn: "Id",
-                commandType: CommandType.StoredProcedure);
+                splitOn: "Id");
 
             return sessions.FirstOrDefault();
         }
@@ -99,9 +94,8 @@ namespace SnekartApi.Repositories
             using var conn = _connectionFactory.CreateConnection();
 
             await conn.ExecuteAsync(
-                "usp_Session_Delete",
-                new { Token = token },
-                commandType: CommandType.StoredProcedure);
+                "SELECT usp_session_delete(@Token)",
+                new { Token = token });
         }
 
         public async Task DeleteAllSessionsAsync(int customerId)
@@ -109,13 +103,8 @@ namespace SnekartApi.Repositories
             using var conn = _connectionFactory.CreateConnection();
 
             await conn.ExecuteAsync(
-                "usp_Session_DeleteAll",
-                new { CustomerId = customerId },
-                commandType: CommandType.StoredProcedure);
+                "SELECT usp_session_deleteall(@CustomerId)",
+                new { CustomerId = customerId });
         }
-
-        // --- PRACTICE ---
-        // Write usp_Auth_CountCustomersByLevel(@Level NVARCHAR(50)) returning a single int, and
-        // a matching Task<int> CountCustomersByLevelAsync(string level) here via ExecuteScalarAsync<int>.
     }
 }

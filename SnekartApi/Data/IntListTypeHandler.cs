@@ -4,7 +4,7 @@ using Dapper;
 
 namespace SnekartApi.Data
 {
-    // Same JSON-in-NVARCHAR(MAX) strategy as StringListTypeHandler, for List<int> columns
+    // Same JSON-in-text-column strategy as StringListTypeHandler, for List<int> columns
     // (BlogPost.RelatedProductIds).
     public class IntListTypeHandler : SqlMapper.TypeHandler<List<int>>
     {

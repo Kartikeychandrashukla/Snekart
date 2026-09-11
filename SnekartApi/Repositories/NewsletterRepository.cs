@@ -1,13 +1,12 @@
-using System.Data;
 using Dapper;
 using SnekartApi.Data;
 using SnekartApi.Models;
 
 namespace SnekartApi.Repositories
 {
-    // SQL Server has no PROCEDURE/FUNCTION split like Postgres — every operation here is a
-    // plain stored procedure (usp_*), called with CommandType.StoredProcedure. Which Dapper
-    // method to call depends only on what the SP's SELECT (if any) hands back: QueryAsync<T>
+    // Every operation here goes through a Postgres function (usp_*), called as plain SQL text
+    // ("SELECT usp_x(...)" for a scalar/void result, "SELECT * FROM usp_x(...)" for rows).
+    // Which Dapper method to call depends only on what the function hands back: QueryAsync<T>
     // for multiple rows, QueryFirstOrDefaultAsync<T> for one row, ExecuteScalarAsync<T> for a
     // single value, ExecuteAsync for nothing (just rows-affected).
     public class NewsletterRepository : INewsletterRepository
@@ -24,9 +23,8 @@ namespace SnekartApi.Repositories
             using var conn = _connectionFactory.CreateConnection();
 
             return await conn.ExecuteScalarAsync<bool>(
-                "usp_Newsletter_ExistsByEmail",
-                new { Email = email },
-                commandType: CommandType.StoredProcedure);
+                "SELECT usp_newsletter_existsbyemail(@Email)",
+                new { Email = email });
         }
 
         public async Task<NewsletterSubscriber?> GetByTokenAsync(Guid token)
@@ -34,9 +32,8 @@ namespace SnekartApi.Repositories
             using var conn = _connectionFactory.CreateConnection();
 
             return await conn.QueryFirstOrDefaultAsync<NewsletterSubscriber>(
-                "usp_Newsletter_GetByToken",
-                new { Token = token },
-                commandType: CommandType.StoredProcedure);
+                "SELECT * FROM usp_newsletter_getbytoken(@Token)",
+                new { Token = token });
         }
 
         public async Task AddAsync(NewsletterSubscriber subscriber)
@@ -44,23 +41,20 @@ namespace SnekartApi.Repositories
             using var conn = _connectionFactory.CreateConnection();
 
             await conn.ExecuteAsync(
-                "usp_Newsletter_Add",
+                "SELECT usp_newsletter_add(@Email, @SubscribedAt, @UnsubscribeToken)",
                 new
                 {
                     subscriber.Email,
                     subscriber.SubscribedAt,
                     subscriber.UnsubscribeToken
-                },
-                commandType: CommandType.StoredProcedure);
+                });
         }
 
         public async Task<List<NewsletterSubscriber>> GetAllSubscribersAsync()
         {
             using var conn = _connectionFactory.CreateConnection();
 
-            var subscribers = await conn.QueryAsync<NewsletterSubscriber>(
-                "usp_Newsletter_GetAll",
-                commandType: CommandType.StoredProcedure);
+            var subscribers = await conn.QueryAsync<NewsletterSubscriber>("SELECT * FROM usp_newsletter_getall()");
 
             return subscribers.ToList();
         }
@@ -70,13 +64,8 @@ namespace SnekartApi.Repositories
             using var conn = _connectionFactory.CreateConnection();
 
             return await conn.ExecuteScalarAsync<bool>(
-                "usp_Newsletter_Delete",
-                new { subscriber.Id },
-                commandType: CommandType.StoredProcedure);
+                "SELECT usp_newsletter_delete(@Id)",
+                new { subscriber.Id });
         }
-
-        // --- PRACTICE ---
-        // Write usp_Newsletter_Count returning a single int (SELECT COUNT(*) ...), and a
-        // matching Task<int> CountSubscribersAsync() here via ExecuteScalarAsync<int>.
     }
 }

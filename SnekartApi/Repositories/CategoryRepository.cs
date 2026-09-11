@@ -1,4 +1,3 @@
-using System.Data;
 using Dapper;
 using SnekartApi.Data;
 using SnekartApi.Models;
@@ -19,9 +18,8 @@ namespace SnekartApi.Repositories
             using var conn = _connectionFactory.CreateConnection();
 
             var categories = await conn.QueryAsync<Category>(
-                "usp_Category_GetByType",
-                new { Type = type },
-                commandType: CommandType.StoredProcedure);
+                "SELECT * FROM usp_category_getbytype(@Type)",
+                new { Type = type });
 
             return categories.ToList();
         }
@@ -31,15 +29,14 @@ namespace SnekartApi.Repositories
             using var conn = _connectionFactory.CreateConnection();
 
             category.Id = await conn.ExecuteScalarAsync<int>(
-                "usp_Category_Add",
+                "SELECT usp_category_add(@Type, @Name, @Slug, @CreatedAt)",
                 new
                 {
                     category.Type,
                     category.Name,
                     category.Slug,
                     category.CreatedAt
-                },
-                commandType: CommandType.StoredProcedure);
+                });
 
             return category;
         }
@@ -52,9 +49,8 @@ namespace SnekartApi.Repositories
             using var conn = _connectionFactory.CreateConnection();
 
             return await conn.ExecuteScalarAsync<bool>(
-                "usp_Category_Update",
-                new { Id = id, Name = name },
-                commandType: CommandType.StoredProcedure);
+                "SELECT usp_category_update(@Id, @Name)",
+                new { Id = id, Name = name });
         }
 
         public async Task<CategoryDeleteOutcome> DeleteAsync(int id)
@@ -62,9 +58,8 @@ namespace SnekartApi.Repositories
             using var conn = _connectionFactory.CreateConnection();
 
             var result = await conn.ExecuteScalarAsync<int>(
-                "usp_Category_Delete",
-                new { Id = id },
-                commandType: CommandType.StoredProcedure);
+                "SELECT usp_category_delete(@Id)",
+                new { Id = id });
 
             return (CategoryDeleteOutcome)result;
         }

@@ -1,4 +1,3 @@
-using System.Data;
 using Dapper;
 using SnekartApi.Data;
 using SnekartApi.Models;
@@ -18,9 +17,7 @@ namespace SnekartApi.Repositories
         {
             using var conn = _connectionFactory.CreateConnection();
 
-            var posts = await conn.QueryAsync<BlogPost>(
-                "usp_BlogPost_GetAll",
-                commandType: CommandType.StoredProcedure);
+            var posts = await conn.QueryAsync<BlogPost>("SELECT * FROM usp_blogpost_getall()");
 
             return posts.ToList();
         }
@@ -30,9 +27,8 @@ namespace SnekartApi.Repositories
             using var conn = _connectionFactory.CreateConnection();
 
             return await conn.QueryFirstOrDefaultAsync<BlogPost>(
-                "usp_BlogPost_GetById",
-                new { Id = id },
-                commandType: CommandType.StoredProcedure);
+                "SELECT * FROM usp_blogpost_getbyid(@Id)",
+                new { Id = id });
         }
 
         public async Task<BlogPost?> GetBySlugAsync(string slug)
@@ -40,9 +36,8 @@ namespace SnekartApi.Repositories
             using var conn = _connectionFactory.CreateConnection();
 
             return await conn.QueryFirstOrDefaultAsync<BlogPost>(
-                "usp_BlogPost_GetBySlug",
-                new { Slug = slug },
-                commandType: CommandType.StoredProcedure);
+                "SELECT * FROM usp_blogpost_getbyslug(@Slug)",
+                new { Slug = slug });
         }
 
         public async Task AddAsync(BlogPost post)
@@ -50,7 +45,7 @@ namespace SnekartApi.Repositories
             using var conn = _connectionFactory.CreateConnection();
 
             await conn.ExecuteAsync(
-                "usp_BlogPost_Add",
+                "SELECT usp_blogpost_add(@Title, @Slug, @Category, @Emotion, @Excerpt, @Content, @Author, @ReadTime, @Image, @Video, @PublishedAt, @RelatedProductIds)",
                 new
                 {
                     post.Title,
@@ -65,8 +60,7 @@ namespace SnekartApi.Repositories
                     post.Video,
                     post.PublishedAt,
                     post.RelatedProductIds
-                },
-                commandType: CommandType.StoredProcedure);
+                });
         }
 
         // PublishedAt is excluded here on purpose — same rule as before, an edit never touches
@@ -76,7 +70,7 @@ namespace SnekartApi.Repositories
             using var conn = _connectionFactory.CreateConnection();
 
             return await conn.ExecuteScalarAsync<bool>(
-                "usp_BlogPost_Update",
+                "SELECT usp_blogpost_update(@Id, @Title, @Slug, @Category, @Emotion, @Excerpt, @Content, @Author, @ReadTime, @Image, @Video, @RelatedProductIds)",
                 new
                 {
                     Id = id,
@@ -91,8 +85,7 @@ namespace SnekartApi.Repositories
                     post.Image,
                     post.Video,
                     post.RelatedProductIds
-                },
-                commandType: CommandType.StoredProcedure);
+                });
         }
 
         public async Task<bool> DeleteAsync(int id)
@@ -100,9 +93,8 @@ namespace SnekartApi.Repositories
             using var conn = _connectionFactory.CreateConnection();
 
             return await conn.ExecuteScalarAsync<bool>(
-                "usp_BlogPost_Delete",
-                new { Id = id },
-                commandType: CommandType.StoredProcedure);
+                "SELECT usp_blogpost_delete(@Id)",
+                new { Id = id });
         }
     }
 }

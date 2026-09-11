@@ -1,4 +1,3 @@
-using System.Data;
 using Dapper;
 using Microsoft.AspNetCore.Mvc;
 using SnekartApi.Data;
@@ -51,9 +50,8 @@ namespace SnekartApi.Controllers
 
                 using var conn = _connectionFactory.CreateConnection();
                 await conn.ExecuteAsync(
-                    "usp_ProductImage_Add",
-                    new { image.Id, image.Data, image.ContentType },
-                    commandType: CommandType.StoredProcedure);
+                    "SELECT usp_productimage_add(@Id, @Data, @ContentType)",
+                    new { image.Id, image.Data, image.ContentType });
 
                 return Ok(new { message = "Image uploaded successfully.", url = $"/api/uploads/image/{image.Id}" });
             }
@@ -92,9 +90,8 @@ namespace SnekartApi.Controllers
 
                 using var conn = _connectionFactory.CreateConnection();
                 await conn.ExecuteAsync(
-                    "usp_ProductImage_Add",
-                    new { image.Id, image.Data, image.ContentType },
-                    commandType: CommandType.StoredProcedure);
+                    "SELECT usp_productimage_add(@Id, @Data, @ContentType)",
+                    new { image.Id, image.Data, image.ContentType });
 
                 return Ok(new { message = "Image uploaded successfully.", url = $"/api/uploads/image/{image.Id}" });
             }
@@ -109,9 +106,8 @@ namespace SnekartApi.Controllers
         {
             using var conn = _connectionFactory.CreateConnection();
             var image = await conn.QueryFirstOrDefaultAsync<ProductImage>(
-                "usp_ProductImage_GetById",
-                new { Id = id },
-                commandType: CommandType.StoredProcedure);
+                "SELECT * FROM usp_productimage_getbyid(@Id)",
+                new { Id = id });
 
             if (image == null) return NotFound();
             return File(image.Data, image.ContentType);
@@ -124,9 +120,8 @@ namespace SnekartApi.Controllers
             using var conn = _connectionFactory.CreateConnection();
 
             var deleted = await conn.ExecuteScalarAsync<bool>(
-                "usp_ProductImage_Delete",
-                new { Id = id },
-                commandType: CommandType.StoredProcedure);
+                "SELECT usp_productimage_delete(@Id)",
+                new { Id = id });
 
             if (!deleted) return NotFound();
             return NoContent();
@@ -158,9 +153,8 @@ namespace SnekartApi.Controllers
 
                 using var conn = _connectionFactory.CreateConnection();
                 await conn.ExecuteAsync(
-                    "usp_Video_Add",
-                    new { video.Id, video.Data, video.ContentType },
-                    commandType: CommandType.StoredProcedure);
+                    "SELECT usp_video_add(@Id, @Data, @ContentType)",
+                    new { video.Id, video.Data, video.ContentType });
 
                 return Ok(new { message = "Video uploaded successfully.", url = $"/api/uploads/video/{video.Id}" });
             }
@@ -175,9 +169,8 @@ namespace SnekartApi.Controllers
         {
             using var conn = _connectionFactory.CreateConnection();
             var video = await conn.QueryFirstOrDefaultAsync<Video>(
-                "usp_Video_GetById",
-                new { Id = id },
-                commandType: CommandType.StoredProcedure);
+                "SELECT * FROM usp_video_getbyid(@Id)",
+                new { Id = id });
 
             if (video == null) return NotFound();
             return File(video.Data, video.ContentType, enableRangeProcessing: true);
@@ -190,9 +183,8 @@ namespace SnekartApi.Controllers
             using var conn = _connectionFactory.CreateConnection();
 
             var deleted = await conn.ExecuteScalarAsync<bool>(
-                "usp_Video_Delete",
-                new { Id = id },
-                commandType: CommandType.StoredProcedure);
+                "SELECT usp_video_delete(@Id)",
+                new { Id = id });
 
             if (!deleted) return NotFound();
             return NoContent();

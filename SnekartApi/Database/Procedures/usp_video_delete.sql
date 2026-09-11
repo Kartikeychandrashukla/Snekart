@@ -1,0 +1,9 @@
+CREATE OR REPLACE FUNCTION usp_video_delete(p_id UUID)
+RETURNS BOOLEAN
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    DELETE FROM videos WHERE id = p_id;
+    RETURN FOUND;
+END;
+$$;
