@@ -39,7 +39,7 @@ export default function Home() {
               Personalized wellness kits crafted for every emotion and every you.
             </p>
             <Link
-              to="/emotions"
+              to="/occasions"
               className="inline-block bg-forest text-white text-sm font-medium px-7 py-3 rounded-lg hover:bg-forest/90 transition-colors"
             >
               Explore Kits
@@ -89,7 +89,7 @@ export default function Home() {
               Each kit is mindfully designed with products that support, uplift and bring balance to your emotional wellbeing.
             </p>
             <Link
-              to="/emotions"
+              to="/occasions"
               className="inline-block bg-forest text-white text-sm font-medium px-6 py-3 rounded-lg hover:bg-forest/90 transition-colors"
             >
               Shop All Kits
