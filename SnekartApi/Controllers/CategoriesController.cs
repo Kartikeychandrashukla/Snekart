@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using SnekartApi.DTOs;
 using SnekartApi.Middleware;
+using SnekartApi.Models;
 using SnekartApi.Services;
 
 namespace SnekartApi.Controllers
@@ -32,6 +33,16 @@ namespace SnekartApi.Controllers
         public async Task<IActionResult> UpdateCategory(int id, [FromBody] CategoryRequest req)
         {
             var result = await _service.UpdateAsync(id, req);
+            if (result.NotFound) return NotFound(new { message = result.Message });
+            if (!result.Success) return BadRequest(new { message = result.Message });
+            return Ok(new { message = result.Message });
+        }
+
+        [HttpPut("{id}/content")]
+        [RequireAdminSession]
+        public async Task<IActionResult> UpdateCategoryContent(int id, [FromBody] CategoryContent? content)
+        {
+            var result = await _service.UpdateContentAsync(id, content);
             if (result.NotFound) return NotFound(new { message = result.Message });
             if (!result.Success) return BadRequest(new { message = result.Message });
             return Ok(new { message = result.Message });

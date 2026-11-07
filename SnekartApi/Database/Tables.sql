@@ -191,8 +191,12 @@ CREATE TABLE IF NOT EXISTS categories (
     type       VARCHAR(20)   NOT NULL,   -- 'Emotion' | 'Festival' | 'Occasion' — fixed set, not admin-managed itself
     name       VARCHAR(100)  NOT NULL,   -- display label, editable
     slug       VARCHAR(100)  NOT NULL,   -- stable identifier stored in products' tag lists, never changes after creation
-    createdat  TIMESTAMPTZ   NOT NULL DEFAULT now()
+    createdat  TIMESTAMPTZ   NOT NULL DEFAULT now(),
+    content    TEXT          NULL        -- JSON landing-page content (see Models/CategoryContent.cs); NULL = auto-generated
 );
+
+-- Added after the table first shipped — brings existing databases up to date.
+ALTER TABLE categories ADD COLUMN IF NOT EXISTS content TEXT NULL;
 
 -- A given type can't have the same slug twice (e.g. two "Emotion" categories both named "Happy")
 CREATE UNIQUE INDEX IF NOT EXISTS ix_categories_type_slug ON categories(type, slug);

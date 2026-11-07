@@ -84,19 +84,19 @@ export default function ProductDetail() {
                 {product.tierLabel}
               </span>
               {product.emotion.map(e => (
-                <span key={`e-${e}`} className={`text-xs px-2.5 py-0.5 rounded-full ${emotionBadgeStyle}`}>
+                <Link key={`e-${e}`} to={`/emotions/${e}`} className={`text-xs px-2.5 py-0.5 rounded-full hover:underline ${emotionBadgeStyle}`}>
                   {deslugify(e)}
-                </span>
+                </Link>
               ))}
               {product.festival?.map(f => (
-                <span key={`f-${f}`} className={`text-xs px-2.5 py-0.5 rounded-full ${festivalBadgeStyle}`}>
+                <Link key={`f-${f}`} to={`/festivals/${f}`} className={`text-xs px-2.5 py-0.5 rounded-full hover:underline ${festivalBadgeStyle}`}>
                   {deslugify(f)}
-                </span>
+                </Link>
               ))}
               {product.occasion?.map(o => (
-                <span key={`o-${o}`} className={`text-xs px-2.5 py-0.5 rounded-full ${occasionBadgeStyle}`}>
+                <Link key={`o-${o}`} to={`/occasions/${o}`} className={`text-xs px-2.5 py-0.5 rounded-full hover:underline ${occasionBadgeStyle}`}>
                   {deslugify(o)}
-                </span>
+                </Link>
               ))}
               {product.badge && (
                 <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-white text-forest shadow-sm">

@@ -8,6 +8,7 @@ namespace SnekartApi.Services
         Task<List<Category>> GetByTypeAsync(string type);
         Task<CategoryResult> CreateAsync(CategoryRequest req);
         Task<CategoryResult> UpdateAsync(int id, CategoryRequest req);
+        Task<CategoryResult> UpdateContentAsync(int id, CategoryContent? content);
         Task<CategoryResult> DeleteAsync(int id);
     }
 

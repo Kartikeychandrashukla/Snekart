@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Dapper;
 using SnekartApi.Data;
 using SnekartApi.Models;
@@ -51,6 +52,21 @@ namespace SnekartApi.Repositories
             return await conn.ExecuteScalarAsync<bool>(
                 "SELECT usp_category_update(@Id, @Name)",
                 new { Id = id, Name = name });
+        }
+
+        public async Task<bool> UpdateContentAsync(int id, CategoryContent? content)
+        {
+            using var conn = _connectionFactory.CreateConnection();
+
+            // Serialized here rather than via the type handler so a null clears the column
+            // as a plain text NULL.
+            var json = content == null
+                ? null
+                : JsonSerializer.Serialize(content, CategoryContentTypeHandler.Options);
+
+            return await conn.ExecuteScalarAsync<bool>(
+                "SELECT usp_category_updatecontent(@Id, @Content)",
+                new { Id = id, Content = json });
         }
 
         public async Task<CategoryDeleteOutcome> DeleteAsync(int id)

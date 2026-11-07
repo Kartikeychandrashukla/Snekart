@@ -71,6 +71,53 @@ namespace SnekartApi.Services
             }
         }
 
+        public async Task<CategoryResult> UpdateContentAsync(int id, CategoryContent? content)
+        {
+            try
+            {
+                var updated = await _repo.UpdateContentAsync(id, Normalize(content));
+                if (!updated)
+                    return new CategoryResult { Success = false, NotFound = true, Message = "Category not found." };
+
+                return new CategoryResult { Success = true, Message = "Page content saved." };
+            }
+            catch (Exception)
+            {
+                return new CategoryResult { Success = false, Message = "Failed to save page content. Please try again." };
+            }
+        }
+
+        // Trims every field and drops blank sections/FAQs; if nothing is left, returns null so the
+        // page falls back to its auto-generated text instead of rendering empty blocks.
+        private static CategoryContent? Normalize(CategoryContent? content)
+        {
+            if (content == null) return null;
+
+            static string? Clean(string? s) => string.IsNullOrWhiteSpace(s) ? null : s.Trim();
+
+            var normalized = new CategoryContent
+            {
+                SeoTitle    = Clean(content.SeoTitle),
+                Description = Clean(content.Description),
+                Heading     = Clean(content.Heading),
+                Intro       = Clean(content.Intro),
+                Sections    = content.Sections
+                    .Where(s => !string.IsNullOrWhiteSpace(s.Title) || !string.IsNullOrWhiteSpace(s.Body))
+                    .Select(s => new CategorySection { Title = s.Title.Trim(), Body = s.Body.Trim() })
+                    .ToList(),
+                Faqs        = content.Faqs
+                    .Where(f => !string.IsNullOrWhiteSpace(f.Q) && !string.IsNullOrWhiteSpace(f.A))
+                    .Select(f => new CategoryFaq { Q = f.Q.Trim(), A = f.A.Trim() })
+                    .ToList(),
+            };
+
+            var isEmpty = normalized.SeoTitle == null && normalized.Description == null
+                && normalized.Heading == null && normalized.Intro == null
+                && normalized.Sections.Count == 0 && normalized.Faqs.Count == 0;
+
+            return isEmpty ? null : normalized;
+        }
+
         public async Task<CategoryResult> DeleteAsync(int id)
         {
             try

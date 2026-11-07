@@ -324,6 +324,18 @@ export async function updateCategory(id, { type, name }) {
   return data
 }
 
+// content: { seoTitle, description, heading, intro, sections: [{ title, body }], faqs: [{ q, a }] }
+export async function updateCategoryContent(id, content) {
+  const res = await apiFetch(`${BASE_URL}/categories/${id}/content`, {
+    method:  'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body:    JSON.stringify(content),
+  })
+  const data = await res.json()
+  if (!res.ok) throw new Error(data.message || 'Failed to save page content')
+  return data
+}
+
 export async function deleteCategory(id) {
   const res = await apiFetch(`${BASE_URL}/categories/${id}`, { method: 'DELETE' })
   const data = await res.json()

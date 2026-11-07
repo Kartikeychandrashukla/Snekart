@@ -1,0 +1,10 @@
+User-agent: *
+Disallow: /admin
+Disallow: /cart
+Disallow: /checkout
+Disallow: /my-orders
+Disallow: /order-confirmation/
+Disallow: /login
+Disallow: /register
+
+Sitemap: https://snekart.in/sitemap.xml

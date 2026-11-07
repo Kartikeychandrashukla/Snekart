@@ -7,6 +7,7 @@ import { useProducts } from '../../context/ProductsContext'
 import AdminBlogModal from '../../components/AdminBlogModal'
 import AdminProductModal from '../../components/AdminProductModal'
 import AdminCategoryModal from '../../components/AdminCategoryModal'
+import AdminCategoryContentModal from '../../components/AdminCategoryContentModal'
 import StatusToast from '../../components/Toast'
 
 const categoryTypes = ['Emotion', 'Festival', 'Occasion']
@@ -399,6 +400,7 @@ function AdminCategoriesPanel() {
   const [categories, setCategories] = useState([])
   const [loading, setLoading] = useState(true)
   const [editingCategory, setEditingCategory] = useState(null)
+  const [contentCategory, setContentCategory] = useState(null)
   const [showAddModal, setShowAddModal] = useState(false)
   const [toast, setToast] = useState(null)
 
@@ -455,17 +457,32 @@ function AdminCategoriesPanel() {
           <p className="text-sm">Add one to make it selectable on products</p>
         </div>
       ) : (
+        <>
         <div className="flex gap-2 flex-wrap">
           {categories.map(c => (
-            <button
-              key={c.id}
-              onClick={() => setEditingCategory(c)}
-              className="text-sm bg-white border border-taupe rounded-full px-4 py-2 text-forest hover:border-forest transition-colors"
-            >
-              {c.name}
-            </button>
+            <div key={c.id} className="flex items-center bg-white border border-taupe rounded-full text-sm">
+              <button
+                onClick={() => setEditingCategory(c)}
+                title="Rename or delete"
+                className="pl-4 pr-3 py-2 text-forest hover:underline"
+              >
+                {c.name}
+              </button>
+              <button
+                onClick={() => setContentCategory(c)}
+                title={c.content ? 'Edit landing-page content' : 'No landing-page content yet'}
+                className="flex items-center gap-1.5 border-l border-taupe pl-3 pr-4 py-2 text-xs text-gray-400 hover:text-forest"
+              >
+                <span className={`w-1.5 h-1.5 rounded-full ${c.content ? 'bg-forest' : 'bg-gray-300'}`} />
+                Page content
+              </button>
+            </div>
           ))}
         </div>
+        <p className="text-xs text-gray-300 mt-4">
+          ● Green dot = this {activeType.toLowerCase()} has its own landing-page text. Grey = auto-generated.
+        </p>
+        </>
       )}
 
       {toast && (
@@ -480,6 +497,16 @@ function AdminCategoriesPanel() {
         <AdminCategoryModal
           type={activeType}
           onClose={() => setShowAddModal(false)}
+          onSaved={refetch}
+          onToast={showToast}
+        />
+      )}
+
+      {contentCategory && (
+        <AdminCategoryContentModal
+          type={activeType}
+          category={contentCategory}
+          onClose={() => setContentCategory(null)}
           onSaved={refetch}
           onToast={showToast}
         />

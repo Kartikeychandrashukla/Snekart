@@ -35,8 +35,11 @@ export default function App() {
             }
           />
           <Route path="emotions" element={<Emotions />} />
+          <Route path="emotions/:slug" element={<Emotions />} />
           <Route path="festivals" element={<Festivals />} />
+          <Route path="festivals/:slug" element={<Festivals />} />
           <Route path="occasions" element={<Occasions />} />
+          <Route path="occasions/:slug" element={<Occasions />} />
           <Route path="about" element={<AboutUs />} />
           <Route path="blog" element={<Blog />} />
           <Route path="blog/:slug" element={<BlogPostDetail />} />

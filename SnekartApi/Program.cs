@@ -21,6 +21,7 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 builder.Services.AddScoped<IDbConnectionFactory>(_ => new NpgsqlConnectionFactory(connectionString!));
 Dapper.SqlMapper.AddTypeHandler(new StringListTypeHandler());
 Dapper.SqlMapper.AddTypeHandler(new IntListTypeHandler());
+Dapper.SqlMapper.AddTypeHandler(new CategoryContentTypeHandler());
 
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 builder.Services.AddScoped<IOrderService, OrderService>();
