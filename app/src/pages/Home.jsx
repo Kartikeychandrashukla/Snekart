@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import { useProducts } from '../context/ProductsContext'
 import heroImage from '../assets/hero.jpeg'
+import Seo from '../components/Seo'
 
 // ── Value prop icons ───────────────────────────────────────────────────────────
 function LeafIcon()  { return <svg className="w-6 h-6 text-forest/60" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 3c-4.97 0-9 3.185-9 7.115C3 14.04 7.03 17.23 12 17.23c1.903 0 3.674-.485 5.16-1.319L21 18l-1.34-3.93C20.625 12.96 21 11.81 21 10.115 21 6.185 16.97 3 12 3z"/></svg> }
@@ -22,6 +23,10 @@ export default function Home() {
 
   return (
     <div className="bg-cream">
+      <Seo
+        title="Snekart – Gift Hampers & Personalised Gifts in Lucknow"
+        description="Thoughtful gift hampers delivered across Lucknow for birthdays, anniversaries, festivals and every occasion."
+      />
 
       {/* ── HERO ─────────────────────────────────────────────────────────── */}
       <section

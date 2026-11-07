@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useBlog } from '../context/BlogContext'
 import { subscribeNewsletter } from '../services/api'
+import Seo from '../components/Seo'
 
 // ── Shared style map — also used by BlogPostDetail ─────────────────────────
 export const categoryColor = {
@@ -49,6 +50,10 @@ export default function Blog() {
 
   return (
     <div className="bg-cream min-h-screen">
+      <Seo
+        title="Gifting Ideas & Guides – Snekart Blog"
+        description="Gift ideas, festival guides and hamper inspiration from the Snekart team in Lucknow."
+      />
 
       {/* ── Header ─────────────────────────────────────────────────────── */}
       <div className="bg-white border-b border-taupe">

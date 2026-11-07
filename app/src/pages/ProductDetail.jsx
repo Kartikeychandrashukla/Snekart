@@ -5,6 +5,7 @@ import { useProducts } from '../context/ProductsContext'
 import ProductCard, { Toast, tierStyle, emotionBadgeStyle, festivalBadgeStyle, occasionBadgeStyle, deslugify, useAddToCart } from '../components/ProductCard'
 import ReviewsSection from '../components/ReviewSection';
 import ProductImageGallery from '../components/ProductImageGallery'
+import Seo from '../components/Seo'
 export default function ProductDetail() {
   const { slug } = useParams()
   const navigate = useNavigate()
@@ -58,6 +59,10 @@ export default function ProductDetail() {
 
   return (
     <div className="bg-cream min-h-screen">
+      <Seo
+        title={`${product.name} – Gift Hamper Delivery in Lucknow | Snekart`}
+        description={product.description}
+      />
       <div className="max-w-6xl mx-auto px-4 sm:px-8 py-10">
 
         <Link to="/emotions" className="text-gray-400 text-sm hover:text-forest transition-colors">

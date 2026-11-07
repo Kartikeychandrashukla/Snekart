@@ -4,6 +4,7 @@ import { getBlogPostBySlug } from '../services/api'
 import { useProducts } from '../context/ProductsContext'
 import ProductCard, { Toast, useAddToCart } from '../components/ProductCard'
 import { categoryColor } from './Blog'
+import Seo from '../components/Seo'
 
 function formatDate(iso) {
   return new Date(iso).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })
@@ -46,6 +47,12 @@ export default function BlogPostDetail() {
 
   return (
     <div className="bg-cream min-h-screen">
+      
+      <Seo
+        title={`${post.title} – Snekart Blog`}
+        description={post.excerpt}
+      />
+
       <div className="max-w-3xl mx-auto px-4 sm:px-8 py-10">
 
         <Link to="/blog" className="text-gray-400 text-sm hover:text-forest transition-colors">
