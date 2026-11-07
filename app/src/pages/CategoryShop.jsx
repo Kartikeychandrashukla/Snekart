@@ -3,10 +3,11 @@ import { useSearchParams, useNavigate } from 'react-router-dom'
 import { useProducts } from '../context/ProductsContext'
 import { getCategories } from '../services/api'
 import ProductCard, { Toast, useAddToCart } from '../components/ProductCard'
+import Seo from '../components/Seo'
 
 // Shared shop-by-category page for Emotion / Festival / Occasion — same structure, just
 // pointed at a different category type and product tag field.
-export default function CategoryShop({ type, field, title, subtitle }) {
+export default function CategoryShop({ type, field, title, subtitle, seoTitle }) {
   const [searchParams] = useSearchParams()
   const navigate        = useNavigate()
   const { products }    = useProducts()
@@ -27,12 +28,26 @@ export default function CategoryShop({ type, field, title, subtitle }) {
 
   const activeCategory = categories.find(c => c.slug === active)
 
+  // SEO text is built from the categories in the database, so adding a new one in admin
+  // (e.g. "Karwa Chauth") updates the description automatically.
+  const categoryNames = categories.map(c => c.name)
+  const nameList = categoryNames.length > 0
+    ? `${categoryNames.slice(0, 6).join(', ')} and more`
+    : `${type.toLowerCase()} gifting`
+  const pageTitle = activeCategory
+    ? `${activeCategory.name} Gift Hampers in Lucknow – Snekart`
+    : seoTitle
+  const pageDescription = activeCategory
+    ? `Shop ${activeCategory.name} gift hampers and kits from Snekart, delivered across Lucknow.`
+    : `Shop gift hampers for ${nameList}, delivered across Lucknow by Snekart.`
+
   function selectCategory(slug) {
     navigate(slug === active ? `/${type.toLowerCase()}s` : `/${type.toLowerCase()}s?c=${slug}`)
   }
 
   return (
     <div className="bg-cream min-h-screen">
+      <Seo title={pageTitle} description={pageDescription} />
 
       {/* Header */}
       <div className="bg-white border-b border-taupe">
