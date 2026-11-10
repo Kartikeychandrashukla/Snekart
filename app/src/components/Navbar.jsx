@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react'
 import { NavLink, Link } from 'react-router-dom'
 import { useCart } from '../context/CartContext'
 import { useAuth } from '../context/AuthContext'
-import logo from '../assets/snekartnavbar.png'
+import logo from '../assets/snekartnavbar.jpg'
 
 const navLinks = [
   { to: '/',             label: 'Home',         end: true },
