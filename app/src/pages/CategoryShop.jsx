@@ -11,12 +11,16 @@ import Seo from '../components/Seo'
 export default function CategoryShop({ type, field, title, subtitle, seoTitle }) {
   const { slug }       = useParams()
   const [searchParams] = useSearchParams()
-  const { products }   = useProducts()
+  const { products, loading: productsLoading } = useProducts()
   const { handleAdd, toast, clearToast } = useAddToCart()
   const [categories, setCategories] = useState([])
+  const [categoriesLoaded, setCategoriesLoaded] = useState(false)
 
   useEffect(() => {
-    getCategories(type).then(setCategories)
+    getCategories(type)
+      .then(setCategories)
+      .catch(() => setCategories([]))
+      .finally(() => setCategoriesLoaded(true))
   }, [type])
 
   const basePath = `/${type.toLowerCase()}s`
@@ -114,38 +118,46 @@ export default function CategoryShop({ type, field, title, subtitle, seoTitle })
           </div>
         )}
 
-        {/* Section title */}
-        <div className="mb-6 flex items-center justify-between">
-          <div>
-            <h2 className="text-xl font-bold text-forest">
-              {activeName ? `Kits for ${activeName}` : `All ${type} Kits`}
-            </h2>
-            <p className="text-gray-400 text-sm mt-0.5">
-              {filtered.length} kit{filtered.length !== 1 ? 's' : ''} available
-            </p>
+        {/* Products and categories load separately; render the grid only once both are in, so the
+            category pills never pop in above an already-drawn grid (layout shift) and "No kits
+            found" never flashes before products arrive. The page's min-h-screen keeps the footer
+            below the fold meanwhile. */}
+        {categoriesLoaded && !productsLoading && (
+          <>
+          {/* Section title */}
+          <div className="mb-6 flex items-center justify-between">
+            <div>
+              <h2 className="text-xl font-bold text-forest">
+                {activeName ? `Kits for ${activeName}` : `All ${type} Kits`}
+              </h2>
+              <p className="text-gray-400 text-sm mt-0.5">
+                {filtered.length} kit{filtered.length !== 1 ? 's' : ''} available
+              </p>
+            </div>
+            {active !== 'all' && (
+              <Link
+                to={basePath}
+                className="text-xs text-forest border border-forest px-3 py-1.5 rounded-full hover:bg-forest hover:text-white transition-colors"
+              >
+                Clear filter
+              </Link>
+            )}
           </div>
-          {active !== 'all' && (
-            <Link
-              to={basePath}
-              className="text-xs text-forest border border-forest px-3 py-1.5 rounded-full hover:bg-forest hover:text-white transition-colors"
-            >
-              Clear filter
-            </Link>
-          )}
-        </div>
 
-        {/* Product Grid */}
-        {filtered.length === 0 ? (
-          <div className="text-center py-20 text-gray-400">
-            <p className="text-lg mb-2">No kits found</p>
-            <p className="text-sm">Try a different {type.toLowerCase()}</p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {filtered.map((p, i) => (
-              <ProductCard key={p.id} product={p} onAdd={handleAdd} priority={i < 2} />
-            ))}
-          </div>
+          {/* Product Grid */}
+          {filtered.length === 0 ? (
+            <div className="text-center py-20 text-gray-400">
+              <p className="text-lg mb-2">No kits found</p>
+              <p className="text-sm">Try a different {type.toLowerCase()}</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {filtered.map((p, i) => (
+                <ProductCard key={p.id} product={p} onAdd={handleAdd} priority={i < 2} />
+              ))}
+            </div>
+          )}
+          </>
         )}
 
         {/* Written content */}
