@@ -1,5 +1,8 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
+// Self-hosted Inter (one variable-weight file) — bundled with our CSS instead of a
+// render-blocking @import to Google Fonts.
+import '@fontsource-variable/inter'
 import './index.css'
 import App from './App.jsx'
 import { CartProvider } from './context/CartContext.jsx'

@@ -16,7 +16,7 @@ export default {
         blush:    "#F0B8C4",
       },
       fontFamily: {
-        sans: ["Inter", "sans-serif"],
+        sans: ["Inter Variable", "Inter", "sans-serif"],
       },
     },
   },
