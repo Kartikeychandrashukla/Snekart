@@ -16,11 +16,14 @@ export default function BlogPostDetail() {
   const { handleAdd, toast, clearToast } = useAddToCart()
   const [post,    setPost]    = useState(null)
   const [loading, setLoading] = useState(true)
+  const [loadFailed, setLoadFailed] = useState(false)
 
   useEffect(() => {
     setLoading(true)
+    setLoadFailed(false)
     getBlogPostBySlug(slug)
       .then(setPost)
+      .catch(() => setLoadFailed(true))
       .finally(() => setLoading(false))
   }, [slug])
 
@@ -32,9 +35,18 @@ export default function BlogPostDetail() {
     )
   }
 
+  if (loadFailed) {
+    return (
+      <div className="bg-cream min-h-screen flex flex-col items-center justify-center gap-4 py-20">
+        <p className="text-gray-400">We couldn't load this post right now. Please refresh the page.</p>
+      </div>
+    )
+  }
+
   if (!post) {
     return (
       <div className="bg-cream min-h-screen flex flex-col items-center justify-center gap-4 py-20">
+        <Seo title="Post not found – Snekart" description="This post doesn't exist, or has been taken down." noindex />
         <p className="text-gray-400">This post doesn't exist, or has been taken down.</p>
         <Link to="/blog" className="text-forest text-sm font-semibold hover:underline">← Back to the Journal</Link>
       </div>

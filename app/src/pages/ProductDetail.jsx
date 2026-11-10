@@ -13,11 +13,14 @@ export default function ProductDetail() {
   const { handleAdd, toast, clearToast } = useAddToCart()
   const [product, setProduct] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [loadFailed, setLoadFailed] = useState(false)
 
   useEffect(() => {
     setLoading(true)
+    setLoadFailed(false)
     getProductBySlug(slug)
       .then(setProduct)
+      .catch(() => setLoadFailed(true))
       .finally(() => setLoading(false))
   }, [slug])
 
@@ -48,9 +51,18 @@ export default function ProductDetail() {
     )
   }
 
+  if (loadFailed) {
+    return (
+      <div className="bg-cream min-h-screen flex flex-col items-center justify-center gap-4 py-20">
+        <p className="text-gray-400">We couldn't load this kit right now. Please refresh the page.</p>
+      </div>
+    )
+  }
+
   if (!product) {
     return (
       <div className="bg-cream min-h-screen flex flex-col items-center justify-center gap-4 py-20">
+        <Seo title="Kit not found – Snekart" description="This kit doesn't exist, or has been taken down." noindex />
         <p className="text-gray-400">This kit doesn't exist, or has been taken down.</p>
         <Link to="/emotions" className="text-forest text-sm font-semibold hover:underline">← Back to Shop</Link>
       </div>

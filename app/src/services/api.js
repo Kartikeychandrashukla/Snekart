@@ -101,9 +101,12 @@ export async function getProducts() {
   return res.json()
 }
 
+// null = the product genuinely doesn't exist (404); throws on any other failure, so a
+// temporary outage isn't shown as "not found" (which pages mark noindex).
 export async function getProductBySlug(slug) {
   const res = await apiFetch(`${BASE_URL}/products/${slug}`)
-  if (!res.ok) return null
+  if (res.status === 404) return null
+  if (!res.ok) throw new Error('Failed to load product')
   return res.json()
 }
 
@@ -236,9 +239,11 @@ export async function getBlogPosts() {
   return res.json()
 }
 
+// Same contract as getProductBySlug: null only for a real 404, throws otherwise.
 export async function getBlogPostBySlug(slug) {
   const res = await apiFetch(`${BASE_URL}/blogposts/${slug}`)
-  if (!res.ok) return null
+  if (res.status === 404) return null
+  if (!res.ok) throw new Error('Failed to load post')
   return res.json()
 }
 

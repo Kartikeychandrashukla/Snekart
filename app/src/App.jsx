@@ -5,6 +5,7 @@ import Home from './pages/Home'
 import Emotions from './pages/Emotions'
 import Festivals from './pages/Festivals'
 import Occasions from './pages/Occasions'
+import NotFound from './pages/NotFound'
 
 // Code-split: landing pages (Home, Emotions/Festivals/Occasions) stay in the main bundle so
 // search visitors see them instantly; every other page's JS downloads only when it's opened.
@@ -46,6 +47,7 @@ export default function App() {
           <Route path="login" element={<Login />} />
           <Route path="register" element={<Register />} />
           <Route path="my-orders" element={<MyOrders />} />
+          <Route path="*" element={<NotFound />} />
         </Route>
       </Routes>
     </BrowserRouter>

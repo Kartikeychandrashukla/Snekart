@@ -4,6 +4,7 @@ import { useProducts } from '../context/ProductsContext'
 import { getCategories } from '../services/api'
 import ProductCard, { Toast, useAddToCart, deslugify } from '../components/ProductCard'
 import Seo from '../components/Seo'
+import NotFound from './NotFound'
 
 // Shared shop-by-category page for Emotion / Festival / Occasion — same structure, just
 // pointed at a different category type and product tag field.
@@ -39,6 +40,8 @@ export default function CategoryShop({ type, field, title, subtitle, seoTitle })
     : products.filter(p => p[field]?.includes(active))
 
   const activeCategory = categories.find(c => c.slug === active)
+  // Only once a non-empty list has loaded — an API outage yields [] and must not look like a 404.
+  if (slug && categoriesLoaded && categories.length > 0 && !activeCategory) return <NotFound />
   // Fall back to the slug while categories load, so the heading doesn't flicker.
   const activeName = activeCategory?.name ?? (slug ? deslugify(slug) : null)
   // Landing-page text written in Admin → Categories → Page content (null = auto-generated)
