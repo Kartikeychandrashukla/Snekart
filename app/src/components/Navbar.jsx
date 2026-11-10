@@ -77,6 +77,9 @@ export default function Navbar() {
             <button
               onClick={() => setDropdownOpen(o => !o)}
               className="text-gray-500 hover:text-forest transition-colors"
+              aria-label="Account menu"
+              aria-haspopup="menu"
+              aria-expanded={dropdownOpen}
             >
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                 strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
@@ -154,7 +157,11 @@ export default function Navbar() {
           </div>
 
           {/* Cart */}
-          <Link to="/cart" className="relative text-gray-500 hover:text-forest transition-colors">
+          <Link
+            to="/cart"
+            className="relative text-gray-500 hover:text-forest transition-colors"
+            aria-label={cartCount > 0 ? `Cart, ${cartCount} item${cartCount !== 1 ? 's' : ''}` : 'Cart'}
+          >
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
               strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
               <path strokeLinecap="round" strokeLinejoin="round"
@@ -172,6 +179,7 @@ export default function Navbar() {
             onClick={() => setMobileMenuOpen(o => !o)}
             className="md:hidden text-gray-500 hover:text-forest transition-colors"
             aria-label="Toggle menu"
+            aria-expanded={mobileMenuOpen}
           >
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
               strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
