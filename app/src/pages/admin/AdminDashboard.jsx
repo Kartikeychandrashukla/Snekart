@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { getOrders, getCategories, deleteProduct } from '../../services/api'
+import { getOrders, getCategories, deleteProduct, optimizeExistingImages } from '../../services/api'
 import { useAuth } from '../../context/AuthContext'
 import { useBlog } from '../../context/BlogContext'
 import { useProducts } from '../../context/ProductsContext'
@@ -258,6 +258,49 @@ function AdminBlogPanel() {
   )
 }
 
+// One-off maintenance: shrinks images uploaded before upload optimization existed. Runs the
+// API's batch endpoint in a loop so each request stays short.
+function OptimizeImagesButton({ onToast }) {
+  const [running, setRunning] = useState(false)
+  const [progress, setProgress] = useState(null) // { done, saved }
+
+  async function run() {
+    setRunning(true)
+    let after = null, done = 0, saved = 0
+    try {
+      for (;;) {
+        const r = await optimizeExistingImages(after)
+        done  += r.optimized
+        saved += r.bytesBefore - r.bytesAfter
+        setProgress({ done, saved, remaining: r.remaining })
+        if (r.remaining <= 0 || !r.next) break
+        after = r.next
+      }
+      onToast(done === 0
+        ? 'All images are already optimized.'
+        : `Optimized ${done} image${done !== 1 ? 's' : ''}, saved ${(saved / 1_048_576).toFixed(1)} MB.`, 'success')
+    } catch (err) {
+      onToast(err.message, 'error')
+    } finally {
+      setRunning(false)
+      setProgress(null)
+    }
+  }
+
+  return (
+    <button
+      onClick={run}
+      disabled={running}
+      title="Shrink product, blog and review images uploaded before automatic optimization"
+      className="text-sm text-forest border border-forest px-4 py-2.5 rounded-xl hover:bg-forest hover:text-white transition-colors disabled:opacity-50"
+    >
+      {running
+        ? `Optimizing… ${progress ? `${progress.done} done, ${progress.remaining} left` : ''}`
+        : 'Optimize images'}
+    </button>
+  )
+}
+
 function AdminProductsPanel() {
   const { products, loading, refetch } = useProducts()
   const [editingProduct, setEditingProduct] = useState(null)
@@ -292,12 +335,15 @@ function AdminProductsPanel() {
     <div>
       <div className="flex items-center justify-between mb-5">
         <p className="text-gray-400 text-sm">{products.length} product{products.length !== 1 ? 's' : ''}</p>
-        <button
-          onClick={() => setShowAddModal(true)}
-          className="bg-forest text-white text-sm font-medium px-5 py-2.5 rounded-xl hover:bg-forest/90 transition-colors"
-        >
-          + Add Product
-        </button>
+        <div className="flex items-center gap-3">
+          <OptimizeImagesButton onToast={showToast} />
+          <button
+            onClick={() => setShowAddModal(true)}
+            className="bg-forest text-white text-sm font-medium px-5 py-2.5 rounded-xl hover:bg-forest/90 transition-colors"
+          >
+            + Add Product
+          </button>
+        </div>
       </div>
 
       {products.length === 0 ? (

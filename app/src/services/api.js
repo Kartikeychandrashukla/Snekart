@@ -175,6 +175,16 @@ export async function uploadBlogVideo(file) {
 // Only uploaded blobs (served from /api/uploads/...) have a DB row to clean
 // up — pasted external image/video URLs are left alone since there's
 // nothing on our side to delete.
+// Shrinks one batch of images stored before upload optimization existed. Call repeatedly,
+// passing back `next`, until `remaining` is 0.
+export async function optimizeExistingImages(after) {
+  const query = after ? `?after=${after}` : ''
+  const res = await apiFetch(`${BASE_URL}/uploads/images/optimize-existing${query}`, { method: 'POST' })
+  const data = await res.json().catch(() => ({}))
+  if (!res.ok) throw new Error(data.message || 'Failed to optimize images')
+  return data
+}
+
 export async function deleteUploadedImage(url) {
   if (!url || !url.includes('/api/uploads/image/')) return
   const id = url.split('/').pop()

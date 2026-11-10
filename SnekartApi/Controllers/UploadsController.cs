@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using SnekartApi.Data;
 using SnekartApi.Middleware;
 using SnekartApi.Models;
+using SnekartApi.Services;
 
 namespace SnekartApi.Controllers
 {
@@ -45,11 +46,14 @@ namespace SnekartApi.Controllers
                 using var ms = new MemoryStream();
                 await file.CopyToAsync(ms);
 
+                // Resize + re-encode before storing — see ImageOptimizer
+                var optimized = await ImageOptimizer.OptimizeAsync(ms.ToArray(), ContentTypes[ext]);
+
                 var image = new ProductImage
                 {
                     Id          = Guid.NewGuid(),
-                    Data        = ms.ToArray(),
-                    ContentType = ContentTypes[ext],
+                    Data        = optimized.Data,
+                    ContentType = optimized.ContentType,
                 };
 
                 using var conn = _connectionFactory.CreateConnection();
@@ -58,6 +62,10 @@ namespace SnekartApi.Controllers
                     new { image.Id, image.Data, image.ContentType });
 
                 return Ok(new { message = "Image uploaded successfully.", url = $"/api/uploads/image/{image.Id}" });
+            }
+            catch (InvalidImageException ex)
+            {
+                return BadRequest(new { message = ex.Message });
             }
             catch (Exception)
             {
@@ -85,11 +93,14 @@ namespace SnekartApi.Controllers
                 using var ms = new MemoryStream();
                 await file.CopyToAsync(ms);
 
+                // Resize + re-encode before storing — see ImageOptimizer
+                var optimized = await ImageOptimizer.OptimizeAsync(ms.ToArray(), ContentTypes[ext]);
+
                 var image = new ProductImage
                 {
                     Id          = Guid.NewGuid(),
-                    Data        = ms.ToArray(),
-                    ContentType = ContentTypes[ext],
+                    Data        = optimized.Data,
+                    ContentType = optimized.ContentType,
                 };
 
                 using var conn = _connectionFactory.CreateConnection();
@@ -98,6 +109,10 @@ namespace SnekartApi.Controllers
                     new { image.Id, image.Data, image.ContentType });
 
                 return Ok(new { message = "Image uploaded successfully.", url = $"/api/uploads/image/{image.Id}" });
+            }
+            catch (InvalidImageException ex)
+            {
+                return BadRequest(new { message = ex.Message });
             }
             catch (Exception)
             {
@@ -116,6 +131,61 @@ namespace SnekartApi.Controllers
             if (image == null) return NotFound();
             Response.Headers.CacheControl = ImmutableCacheControl;
             return File(image.Data, image.ContentType);
+        }
+
+        // Shrinks images uploaded before ImageOptimizer existed, in place (same id, so every URL
+        // keeps working). Processes a small batch per call to stay well under the proxy's request
+        // timeout; the admin UI calls it repeatedly, passing back "next" until remaining is 0.
+        [HttpPost("images/optimize-existing")]
+        [RequireAdminSession]
+        public async Task<IActionResult> OptimizeExistingImages([FromQuery] Guid? after)
+        {
+            const int batchSize = 5;
+            const int minBytes  = 150_000; // smaller images aren't worth re-encoding
+
+            using var conn = _connectionFactory.CreateConnection();
+            var batch = (await conn.QueryAsync<(Guid Id, long Remaining)>(
+                "SELECT * FROM usp_productimage_listforoptimize(@After, @MinBytes, @Limit)",
+                new { After = after, MinBytes = minBytes, Limit = batchSize })).ToList();
+
+            int optimized = 0, skipped = 0;
+            long bytesBefore = 0, bytesAfter = 0;
+
+            foreach (var (id, _) in batch)
+            {
+                var image = await conn.QueryFirstOrDefaultAsync<ProductImage>(
+                    "SELECT * FROM usp_productimage_getbyid(@Id)", new { Id = id });
+                if (image == null) { skipped++; continue; }
+
+                try
+                {
+                    var result = await ImageOptimizer.OptimizeAsync(image.Data, image.ContentType);
+                    if (result.Data.Length >= image.Data.Length) { skipped++; continue; }
+
+                    await conn.ExecuteAsync(
+                        "SELECT usp_productimage_updatedata(@Id, @Data, @ContentType)",
+                        new { Id = id, result.Data, result.ContentType });
+
+                    optimized++;
+                    bytesBefore += image.Data.Length;
+                    bytesAfter  += result.Data.Length;
+                }
+                catch (InvalidImageException)
+                {
+                    skipped++; // unreadable or oversized stored file — leave it as is
+                }
+            }
+
+            var remaining = batch.Count == 0 ? 0 : batch[0].Remaining - batch.Count;
+            return Ok(new
+            {
+                optimized,
+                skipped,
+                bytesBefore,
+                bytesAfter,
+                remaining,
+                next = batch.Count == 0 ? (Guid?)null : batch[^1].Id,
+            });
         }
 
         [HttpDelete("image/{id}")]
