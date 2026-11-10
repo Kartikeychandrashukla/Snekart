@@ -38,7 +38,7 @@ namespace SnekartApi.Services
                 ?? throw new InvalidImageException("That file isn't a valid image.");
 
             using var oriented = ApplyOrientation(decoded, codec.EncodedOrigin);
-            using var resized = ResizeToFit(oriented);
+            using var resized = ResizeToFit(oriented, MaxDimension, MaxDimension);
             using var image = SKImage.FromBitmap(resized);
             using var encoded = image.Encode(SKEncodedImageFormat.Webp, WebpQuality);
 
@@ -81,12 +81,33 @@ namespace SnekartApi.Services
             return rotated;
         }
 
-        private static SKBitmap ResizeToFit(SKBitmap source)
+        // Smaller copy of an already-stored image for thumbnails (e.g. product cards). Returns
+        // null when the stored image is already this narrow, or isn't something Skia can decode
+        // (e.g. a GIF's animation would be lost) — callers then serve the original.
+        public static byte[]? ResizeToWidth(byte[] stored, string contentType, int width)
         {
-            var longest = Math.Max(source.Width, source.Height);
-            if (longest <= MaxDimension) return source.Copy();
+            if (contentType == "image/gif") return null;
 
-            var scale = (double)MaxDimension / longest;
+            using var codec = SKCodec.Create(new SKMemoryStream(stored));
+            if (codec == null || codec.Info.Width <= width) return null;
+            if ((long)codec.Info.Width * codec.Info.Height > MaxPixels) return null;
+
+            using var decoded = SKBitmap.Decode(codec);
+            if (decoded == null) return null;
+
+            using var oriented = ApplyOrientation(decoded, codec.EncodedOrigin);
+            using var resized = ResizeToFit(oriented, width, int.MaxValue);
+            using var image = SKImage.FromBitmap(resized);
+            using var encoded = image.Encode(SKEncodedImageFormat.Webp, WebpQuality);
+            return encoded.ToArray();
+        }
+
+        // Scales down (never up) so the image fits inside maxWidth x maxHeight.
+        private static SKBitmap ResizeToFit(SKBitmap source, int maxWidth, int maxHeight)
+        {
+            var scale = Math.Min((double)maxWidth / source.Width, (double)maxHeight / source.Height);
+            if (scale >= 1) return source.Copy();
+
             var info = source.Info.WithSize(
                 Math.Max(1, (int)Math.Round(source.Width * scale)),
                 Math.Max(1, (int)Math.Round(source.Height * scale)));

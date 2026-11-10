@@ -37,6 +37,9 @@ builder.Services.AddScoped<INewsletterRepository,NewsletterRepository>();
 builder.Services.AddScoped<INewsletterService,NewsletterService>();
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
+// Holds resized image thumbnails (see UploadsController.GetImage). Sizes are in bytes, so this
+// caps thumbnails at ~50 MB — well within the host's memory.
+builder.Services.AddMemoryCache(o => o.SizeLimit = 50 * 1024 * 1024);
 builder.Services.AddHttpClient<IEmailService, EmailService>(client =>
     client.BaseAddress = new Uri("https://api.resend.com/"));
 builder.Services.AddHttpClient<IPaymentService, PaymentService>(client =>

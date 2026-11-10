@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
+import { thumbnailUrl, thumbnailSrcSet } from '../utils/images'
 import { useCart } from '../context/CartContext'
 
 // ── Shared style maps ─────────────────────────────────────────────────────────
@@ -57,7 +58,9 @@ export default function ProductCard({ product, onAdd, isAdmin, onEdit, priority 
 
       <Link to={`/shop/${product.slug}`} className="relative h-52 overflow-hidden block">
         <img
-          src={product.image}
+          src={thumbnailUrl(product.image, 400)}
+          srcSet={thumbnailSrcSet(product.image)}
+          sizes="(min-width: 1280px) 25vw, (min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
           alt={product.name}
           loading={priority ? 'eager' : 'lazy'}
           fetchPriority={priority ? 'high' : 'auto'}

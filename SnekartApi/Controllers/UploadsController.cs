@@ -1,5 +1,6 @@
 using Dapper;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 using SnekartApi.Data;
 using SnekartApi.Middleware;
 using SnekartApi.Models;
@@ -9,9 +10,14 @@ namespace SnekartApi.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class UploadsController(IDbConnectionFactory connectionFactory) : ControllerBase
+    public class UploadsController(IDbConnectionFactory connectionFactory, IMemoryCache cache) : ControllerBase
     {
         private readonly IDbConnectionFactory _connectionFactory = connectionFactory;
+        private readonly IMemoryCache _cache = cache;
+
+        // Thumbnail widths the frontend may request via ?w= (product cards use srcset 400/800).
+        // A fixed list stops arbitrary widths from filling the cache with one-off variants.
+        private static readonly HashSet<int> ThumbnailWidths = new() { 400, 800 };
         private static readonly string[] AllowedExtensions = { ".jpg", ".jpeg", ".png", ".webp", ".gif" };
         private static readonly Dictionary<string, string> ContentTypes = new()
         {
@@ -121,8 +127,20 @@ namespace SnekartApi.Controllers
         }
 
         [HttpGet("image/{id}")]
-        public async Task<IActionResult> GetImage(Guid id)
+        public async Task<IActionResult> GetImage(Guid id, [FromQuery] int? w)
         {
+            if (w.HasValue && !ThumbnailWidths.Contains(w.Value))
+                return BadRequest(new { message = "Unsupported width." });
+
+            // Resized variants are cached in memory so a busy category page doesn't re-read the
+            // full image from the database and re-resize it for every new visitor.
+            var cacheKey = $"img:{id}:{w}";
+            if (w.HasValue && _cache.TryGetValue(cacheKey, out byte[]? cached) && cached != null)
+            {
+                Response.Headers.CacheControl = ImmutableCacheControl;
+                return File(cached, "image/webp");
+            }
+
             using var conn = _connectionFactory.CreateConnection();
             var image = await conn.QueryFirstOrDefaultAsync<ProductImage>(
                 "SELECT * FROM usp_productimage_getbyid(@Id)",
@@ -130,6 +148,17 @@ namespace SnekartApi.Controllers
 
             if (image == null) return NotFound();
             Response.Headers.CacheControl = ImmutableCacheControl;
+
+            if (w.HasValue)
+            {
+                var resized = ImageOptimizer.ResizeToWidth(image.Data, image.ContentType, w.Value);
+                if (resized != null)
+                {
+                    _cache.Set(cacheKey, resized, new MemoryCacheEntryOptions { Size = resized.Length });
+                    return File(resized, "image/webp");
+                }
+            }
+
             return File(image.Data, image.ContentType);
         }
 

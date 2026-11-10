@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import { useProducts } from '../context/ProductsContext'
 import heroImage from '../assets/hero.jpeg'
+import { thumbnailUrl } from '../utils/images'
 import Seo from '../components/Seo'
 
 // ── Value prop icons ───────────────────────────────────────────────────────────
@@ -107,7 +108,7 @@ export default function Home() {
               <Link key={kit.id} to={`/shop/${kit.slug}`} className="shrink-0 group">
                 <div className="relative w-44 h-52 rounded-xl overflow-hidden shadow-sm">
                   <img
-                    src={kit.image}
+                    src={thumbnailUrl(kit.image, 400)}
                     alt={kit.name}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                   />
