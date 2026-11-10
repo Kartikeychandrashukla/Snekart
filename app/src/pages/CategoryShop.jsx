@@ -118,8 +118,8 @@ export default function CategoryShop({ type, field, title, subtitle, seoTitle })
           </div>
         )}
 
-        {/* Products and categories load separately; render the grid only once both are in, so the
-            category pills never pop in above an already-drawn grid (layout shift) and "No kits
+        {/* Products and categories load separately; render everything below the pills only once
+            both are in, so nothing already drawn gets pushed down (layout shift) and "No kits
             found" never flashes before products arrive. The page's min-h-screen keeps the footer
             below the fold meanwhile. */}
         {categoriesLoaded && !productsLoading && (
@@ -157,50 +157,50 @@ export default function CategoryShop({ type, field, title, subtitle, seoTitle })
               ))}
             </div>
           )}
-          </>
-        )}
 
-        {/* Written content */}
-        {content?.sections?.length > 0 && (
-          <div className="max-w-3xl mt-16 space-y-10">
-            {content.sections.map(s => (
-              <section key={s.title}>
-                <h2 className="text-xl font-bold text-forest mb-3">{s.title}</h2>
-                {s.body.split('\n\n').map((para, i) => (
-                  <p key={i} className="text-gray-600 text-base leading-relaxed mb-3">{para}</p>
+          {/* Written content */}
+          {content?.sections?.length > 0 && (
+            <div className="max-w-3xl mt-16 space-y-10">
+              {content.sections.map(s => (
+                <section key={s.title}>
+                  <h2 className="text-xl font-bold text-forest mb-3">{s.title}</h2>
+                  {s.body.split('\n\n').map((para, i) => (
+                    <p key={i} className="text-gray-600 text-base leading-relaxed mb-3">{para}</p>
+                  ))}
+                </section>
+              ))}
+            </div>
+          )}
+
+          {/* FAQs */}
+          {content?.faqs?.length > 0 && (
+            <div className="max-w-3xl mt-14">
+              <h2 className="text-xl font-bold text-forest mb-4">Frequently asked questions</h2>
+              <div className="space-y-3">
+                {content.faqs.map(f => (
+                  <details key={f.q} className="bg-white border border-taupe rounded-xl px-5 py-4">
+                    <summary className="text-forest font-semibold cursor-pointer">{f.q}</summary>
+                    <p className="text-gray-600 text-sm leading-relaxed mt-3">{f.a}</p>
+                  </details>
                 ))}
-              </section>
-            ))}
-          </div>
-        )}
-
-        {/* FAQs */}
-        {content?.faqs?.length > 0 && (
-          <div className="max-w-3xl mt-14">
-            <h2 className="text-xl font-bold text-forest mb-4">Frequently asked questions</h2>
-            <div className="space-y-3">
-              {content.faqs.map(f => (
-                <details key={f.q} className="bg-white border border-taupe rounded-xl px-5 py-4">
-                  <summary className="text-forest font-semibold cursor-pointer">{f.q}</summary>
-                  <p className="text-gray-600 text-sm leading-relaxed mt-3">{f.a}</p>
-                </details>
-              ))}
+              </div>
             </div>
-          </div>
-        )}
+          )}
 
-        {/* Related categories */}
-        {active !== 'all' && otherCategories.length > 0 && (
-          <div className="mt-14 pt-8 border-t border-taupe">
-            <h2 className="text-sm font-semibold text-forest mb-3">More {type.toLowerCase()} gifts in Lucknow</h2>
-            <div className="flex flex-wrap gap-x-4 gap-y-2">
-              {otherCategories.map(c => (
-                <Link key={c.id} to={`${basePath}/${c.slug}`} className="text-sm text-gray-500 hover:text-forest hover:underline">
-                  {c.name} Gifts
-                </Link>
-              ))}
+          {/* Related categories */}
+          {active !== 'all' && otherCategories.length > 0 && (
+            <div className="mt-14 pt-8 border-t border-taupe">
+              <h2 className="text-sm font-semibold text-forest mb-3">More {type.toLowerCase()} gifts in Lucknow</h2>
+              <div className="flex flex-wrap gap-x-4 gap-y-2">
+                {otherCategories.map(c => (
+                  <Link key={c.id} to={`${basePath}/${c.slug}`} className="text-sm text-gray-500 hover:text-forest hover:underline">
+                    {c.name} Gifts
+                  </Link>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
+          </>
         )}
       </div>
 
