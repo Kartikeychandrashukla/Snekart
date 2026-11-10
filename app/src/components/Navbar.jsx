@@ -41,6 +41,8 @@ export default function Navbar() {
           <img
             src={logo}
             alt="Snekart"
+            width={432}
+            height={145}
             className="h-9 sm:h-10 md:h-12 w-auto object-contain"
           />
         </Link>

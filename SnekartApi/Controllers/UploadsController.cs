@@ -18,6 +18,10 @@ namespace SnekartApi.Controllers
             [".png"] = "image/png", [".webp"] = "image/webp", [".gif"] = "image/gif",
         };
 
+        // Uploads are never overwritten — a new upload always gets a new Guid, so a given URL's
+        // bytes never change and browsers/CDNs can keep them for a year without re-checking.
+        private const string ImmutableCacheControl = "public, max-age=31536000, immutable";
+
         private static readonly string[] AllowedVideoExtensions = { ".mp4", ".webm", ".mov" };
         private static readonly Dictionary<string, string> VideoContentTypes = new()
         {
@@ -110,6 +114,7 @@ namespace SnekartApi.Controllers
                 new { Id = id });
 
             if (image == null) return NotFound();
+            Response.Headers.CacheControl = ImmutableCacheControl;
             return File(image.Data, image.ContentType);
         }
 
@@ -173,6 +178,7 @@ namespace SnekartApi.Controllers
                 new { Id = id });
 
             if (video == null) return NotFound();
+            Response.Headers.CacheControl = ImmutableCacheControl;
             return File(video.Data, video.ContentType, enableRangeProcessing: true);
         }
 

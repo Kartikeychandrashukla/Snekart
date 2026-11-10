@@ -49,7 +49,9 @@ export function Toast({ name, onClose }) {
 }
 
 // ── ProductCard — onAdd comes from parent ─────────────────────────────────────
-export default function ProductCard({ product, onAdd, isAdmin, onEdit }) {
+// priority: set for the first cards on screen so their image loads right away (it's usually
+// the page's largest element); the rest lazy-load as the user scrolls.
+export default function ProductCard({ product, onAdd, isAdmin, onEdit, priority = false }) {
   return (
     <div className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow flex flex-col">
 
@@ -57,7 +59,8 @@ export default function ProductCard({ product, onAdd, isAdmin, onEdit }) {
         <img
           src={product.image}
           alt={product.name}
-          loading="lazy"
+          loading={priority ? 'eager' : 'lazy'}
+          fetchPriority={priority ? 'high' : 'auto'}
           className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
         />
         {product.badge && (

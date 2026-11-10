@@ -1,24 +1,26 @@
-import { lazy, Suspense } from 'react'
+import { lazy } from 'react'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import RootLayout from './layouts/RootLayout'
 import Home from './pages/Home'
 import Emotions from './pages/Emotions'
 import Festivals from './pages/Festivals'
 import Occasions from './pages/Occasions'
-import AboutUs from './pages/AboutUs'
-import Blog from './pages/Blog'
-import BlogPostDetail from './pages/BlogPostDetail'
-import Cart from './pages/Cart'
-import Checkout from './pages/Checkout'
-import OrderConfirmation from './pages/OrderConfirmation'
-import AdminDashboard from './pages/admin/AdminDashboard'
-import AdminOrderDetail from './pages/admin/AdminOrderDetail'
-import Login from './pages/Login'
-import Register from './pages/Register'
-import MyOrders from './pages/MyOrders'
 
-// Code-split: this page's gallery/specs/reviews JS shouldn't bloat the Shop bundle
-const ProductDetail = lazy(() => import('./pages/ProductDetail'))
+// Code-split: landing pages (Home, Emotions/Festivals/Occasions) stay in the main bundle so
+// search visitors see them instantly; every other page's JS downloads only when it's opened.
+// RootLayout's <Suspense> shows a placeholder while a page's chunk loads.
+const ProductDetail     = lazy(() => import('./pages/ProductDetail'))
+const AboutUs           = lazy(() => import('./pages/AboutUs'))
+const Blog              = lazy(() => import('./pages/Blog'))
+const BlogPostDetail    = lazy(() => import('./pages/BlogPostDetail'))
+const Cart              = lazy(() => import('./pages/Cart'))
+const Checkout          = lazy(() => import('./pages/Checkout'))
+const OrderConfirmation = lazy(() => import('./pages/OrderConfirmation'))
+const AdminDashboard    = lazy(() => import('./pages/admin/AdminDashboard'))
+const AdminOrderDetail  = lazy(() => import('./pages/admin/AdminOrderDetail'))
+const Login             = lazy(() => import('./pages/Login'))
+const Register          = lazy(() => import('./pages/Register'))
+const MyOrders          = lazy(() => import('./pages/MyOrders'))
 
 export default function App() {
   return (
@@ -26,14 +28,7 @@ export default function App() {
       <Routes>
         <Route path="/" element={<RootLayout />}>
           <Route index element={<Home />} />
-          <Route
-            path="shop/:slug"
-            element={
-              <Suspense fallback={<div className="bg-cream min-h-screen" />}>
-                <ProductDetail />
-              </Suspense>
-            }
-          />
+          <Route path="shop/:slug" element={<ProductDetail />} />
           <Route path="emotions" element={<Emotions />} />
           <Route path="emotions/:slug" element={<Emotions />} />
           <Route path="festivals" element={<Festivals />} />

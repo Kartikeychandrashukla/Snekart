@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { Suspense, useEffect, useState } from 'react'
 import { Outlet, useNavigate } from 'react-router-dom'
 import Navbar from '../components/Navbar'
 import Footer from '../components/Footer'
@@ -41,7 +41,10 @@ export default function RootLayout() {
       )}
       <Navbar />
       <main className="flex-1">
-        <Outlet />
+        {/* Lazy-loaded pages (see App.jsx) show this while their code downloads */}
+        <Suspense fallback={<div className="bg-cream min-h-screen" />}>
+          <Outlet />
+        </Suspense>
       </main>
       <Footer />
     </div>

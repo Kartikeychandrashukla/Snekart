@@ -142,8 +142,8 @@ export default function CategoryShop({ type, field, title, subtitle, seoTitle })
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {filtered.map(p => (
-              <ProductCard key={p.id} product={p} onAdd={handleAdd} />
+            {filtered.map((p, i) => (
+              <ProductCard key={p.id} product={p} onAdd={handleAdd} priority={i < 2} />
             ))}
           </div>
         )}
