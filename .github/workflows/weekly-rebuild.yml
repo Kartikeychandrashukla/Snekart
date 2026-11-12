@@ -1,0 +1,27 @@
+# Safety net for the pre-rendered frontend (see app/PRERENDER.md): rebuild snekart.in once a week
+# even if no admin change triggered a deploy (e.g. the API restarted while a rebuild was pending).
+#
+# Needs one repository secret: Settings → Secrets and variables → Actions → New repository secret
+#   Name:  RENDER_DEPLOY_HOOK_URL
+#   Value: the static site's Deploy Hook URL (Render → snekart → Settings → Deploy Hook)
+name: Weekly frontend rebuild
+
+on:
+  schedule:
+    - cron: '30 21 * * 0' # Sundays 21:30 UTC = Monday 03:00 IST
+  workflow_dispatch: {} # also lets you run it by hand from the Actions tab
+
+jobs:
+  rebuild:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Render deploy
+        env:
+          HOOK: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+        run: |
+          if [ -z "$HOOK" ]; then
+            echo "::error::RENDER_DEPLOY_HOOK_URL secret is not set"
+            exit 1
+          fi
+          curl --fail --silent --show-error --retry 3 --retry-delay 30 -X POST "$HOOK" > /dev/null
+          echo "Deploy triggered"
