@@ -73,28 +73,46 @@ The page-title and description rules live in one place, [src/components/Seo.jsx]
 
 ## Render dashboard rules (snekart static site → Redirects/Rewrites)
 
-Render never applies a rule to a path where a file exists, so pre-rendered pages always win. Rules
-are checked top to bottom and the first match is used. The final set, in this order:
+How Render serves files (checked against the live site): a URL only gets a file at its **exact**
+path, or a folder's `index.html` when the URL **ends in `/`**. So `/occasions/wedding/` finds
+`occasions/wedding/index.html`, but `/occasions/wedding` does not. Rules 2–11 below point each clean
+URL at its pre-rendered file.
+
+Render never applies a rule where a file exists. Rules are checked top to bottom and the first
+match is used. In Source, `:slug` matches one path segment and can be reused in Destination. The
+final set, in this order:
 
 | # | Source | Destination | Action |
 |---|---|---|---|
 | 1 | `/how-it-works` | `/about` | Redirect (301) |
-| 2 | `/cart` | `/app-shell.html` | Rewrite |
-| 3 | `/checkout` | `/app-shell.html` | Rewrite |
-| 4 | `/login` | `/app-shell.html` | Rewrite |
-| 5 | `/register` | `/app-shell.html` | Rewrite |
-| 6 | `/my-orders` | `/app-shell.html` | Rewrite |
-| 7 | `/order-confirmation/*` | `/app-shell.html` | Rewrite |
-| 8 | `/admin` | `/app-shell.html` | Rewrite |
-| 9 | `/admin/*` | `/app-shell.html` | Rewrite |
+| 2 | `/about` | `/about/index.html` | Rewrite |
+| 3 | `/blog` | `/blog/index.html` | Rewrite |
+| 4 | `/emotions` | `/emotions/index.html` | Rewrite |
+| 5 | `/festivals` | `/festivals/index.html` | Rewrite |
+| 6 | `/occasions` | `/occasions/index.html` | Rewrite |
+| 7 | `/emotions/:slug` | `/emotions/:slug/index.html` | Rewrite |
+| 8 | `/festivals/:slug` | `/festivals/:slug/index.html` | Rewrite |
+| 9 | `/occasions/:slug` | `/occasions/:slug/index.html` | Rewrite |
+| 10 | `/shop/:slug` | `/shop/:slug/index.html` | Rewrite |
+| 11 | `/blog/:slug` | `/blog/:slug/index.html` | Rewrite |
+| 12 | `/cart` | `/app-shell.html` | Rewrite |
+| 13 | `/checkout` | `/app-shell.html` | Rewrite |
+| 14 | `/login` | `/app-shell.html` | Rewrite |
+| 15 | `/register` | `/app-shell.html` | Rewrite |
+| 16 | `/my-orders` | `/app-shell.html` | Rewrite |
+| 17 | `/order-confirmation/*` | `/app-shell.html` | Rewrite |
+| 18 | `/admin` | `/app-shell.html` | Rewrite |
+| 19 | `/admin/*` | `/app-shell.html` | Rewrite |
 
 There must be **no** `/*` catch-all rule. A catch-all is what made every wrong URL return 200.
+The site should return 404 for a slug that has no page (`/shop/fake-product`, where rule 10
+points at a file that doesn't exist). Check this with curl after removing the catch-all.
 
 **What can't be done on a Render Static Site:**
 - **`?e=` links** (`/emotions?e=happy`): rules can't match query strings. The page redirects in
   the browser to `/emotions/happy`, and its canonical already points at the clean URL.
 - **Trailing slashes** (`/about/`): these return the same page with a canonical of `/about`.
-  Render can't safely 301 them without risking redirect loops.
+  Render has no rule for "remove the trailing slash", so they can't be 301'd.
 - **www and http:** Render already 301s `www.snekart.in` and `http://` to `https://snekart.in`.
 
 ## Testing locally
