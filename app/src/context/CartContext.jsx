@@ -1,4 +1,4 @@
-import { createContext, useContext, useReducer, useEffect } from 'react'
+import { createContext, useContext, useReducer, useEffect, useState } from 'react'
 
 const CartContext = createContext()
 
@@ -21,19 +21,38 @@ function cartReducer(state, action) {
       )
     case 'CLEAR_CART':
       return []
+    case 'LOAD_STORED':
+      return action.payload
     default:
       return state
   }
 }
 
-const stored = JSON.parse(localStorage.getItem('snekart_cart') || '[]')
+function readStoredCart() {
+  try {
+    return JSON.parse(localStorage.getItem('snekart_cart') || '[]')
+  } catch {
+    return []
+  }
+}
 
-export function CartProvider({ children }) {
-  const [items, dispatch] = useReducer(cartReducer, stored)
+// deferStoredCart: true for the build-time render (no localStorage there) and when the browser
+// takes over a pre-rendered page — the first render must match the HTML, which shows an empty
+// cart, so the saved cart is loaded right after.
+export function CartProvider({ children, deferStoredCart = false }) {
+  const [items, dispatch] = useReducer(cartReducer, undefined, () => deferStoredCart ? [] : readStoredCart())
+  const [storedLoaded, setStoredLoaded] = useState(!deferStoredCart)
 
   useEffect(() => {
-    localStorage.setItem('snekart_cart', JSON.stringify(items))
-  }, [items])
+    if (!deferStoredCart) return
+    dispatch({ type: 'LOAD_STORED', payload: readStoredCart() })
+    setStoredLoaded(true)
+  }, [deferStoredCart])
+
+  // Never save before the stored cart was read, or the empty first render would wipe it.
+  useEffect(() => {
+    if (storedLoaded) localStorage.setItem('snekart_cart', JSON.stringify(items))
+  }, [items, storedLoaded])
 
   const addToCart      = (product) => dispatch({ type: 'ADD_ITEM',    payload: product })
   const removeFromCart = (id)      => dispatch({ type: 'REMOVE_ITEM', payload: id })

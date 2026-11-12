@@ -6,23 +6,31 @@ import ProductCard, { Toast, tierStyle, emotionBadgeStyle, festivalBadgeStyle, o
 import ReviewsSection from '../components/ReviewSection';
 import ProductImageGallery from '../components/ProductImageGallery'
 import Seo from '../components/Seo'
+import { productDescription } from '../seo/site'
+import { usePreload } from '../ssr/preload'
+
 export default function ProductDetail() {
   const { slug } = useParams()
   const navigate = useNavigate()
   const { products } = useProducts()
   const { handleAdd, toast, clearToast } = useAddToCart()
-  const [product, setProduct] = useState(null)
-  const [loading, setLoading] = useState(true)
+  // Pre-rendered page: start from the build-time product, so the HTML has the full page.
+  const preloaded = usePreload().product
+  const initial = preloaded?.slug === slug ? preloaded : null
+  const [product, setProduct] = useState(initial)
+  const [loading, setLoading] = useState(!initial)
   const [loadFailed, setLoadFailed] = useState(false)
 
   useEffect(() => {
-    setLoading(true)
+    // Still fetch (fresh price/stock), but only show "Loading" when there's nothing to show yet.
+    const showLoading = preloaded?.slug !== slug
+    if (showLoading) setLoading(true)
     setLoadFailed(false)
     getProductBySlug(slug)
       .then(setProduct)
-      .catch(() => setLoadFailed(true))
+      .catch(() => { if (showLoading) setLoadFailed(true) })
       .finally(() => setLoading(false))
-  }, [slug])
+  }, [slug, preloaded])
 
   // Related products come from context (already loaded for the Shop grid) —
   // no extra network round trip just to populate this section.
@@ -73,7 +81,9 @@ export default function ProductDetail() {
     <div className="bg-cream min-h-screen">
       <Seo
         title={`${product.name} – Gift Hamper Delivery in Lucknow | Snekart`}
-        description={product.description}
+        description={productDescription(product)}
+        image={product.image}
+        type="product"
       />
       <div className="max-w-6xl mx-auto px-4 sm:px-8 py-10">
 

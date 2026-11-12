@@ -15,7 +15,8 @@ export const categoryColor = {
 }
 
 function formatDate(iso) {
-  return new Date(iso).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })
+  // Fixed time zone: the build server (UTC) and the visitor's browser must print the same date.
+  return new Date(iso).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'Asia/Kolkata' })
 }
 
 export default function Blog() {

@@ -1,11 +1,14 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react'
 import { getProducts } from '../services/api'
+import { usePreload } from '../ssr/preload'
 
 const ProductsContext = createContext()
 
 export function ProductsProvider({ children }) {
-  const [products, setProducts] = useState([])
-  const [loading,  setLoading]  = useState(true)
+  // Pre-rendered pages start with the build-time product list, so there's no "loading" state.
+  const preloaded = usePreload().products
+  const [products, setProducts] = useState(() => preloaded ?? [])
+  const [loading,  setLoading]  = useState(!preloaded)
 
   const refetch = useCallback(() => {
     setLoading(true)
@@ -15,8 +18,14 @@ export function ProductsProvider({ children }) {
   }, [])
 
   useEffect(() => {
-    refetch()
-  }, [refetch])
+    if (!preloaded) {
+      refetch()
+      return
+    }
+    // Quietly refresh the build-time list (prices, stock) without flipping back to "loading",
+    // which would hide and re-show the grid. An outage returns [] — keep the preloaded list then.
+    getProducts().then(fresh => { if (fresh.length > 0) setProducts(fresh) }).catch(() => {})
+  }, [refetch, preloaded])
 
   return (
     <ProductsContext.Provider value={{ products, loading, refetch }}>

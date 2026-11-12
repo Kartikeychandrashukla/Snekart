@@ -5,6 +5,7 @@ import { getCategories } from '../services/api'
 import ProductCard, { Toast, useAddToCart, deslugify } from '../components/ProductCard'
 import Seo from '../components/Seo'
 import NotFound from './NotFound'
+import { usePreload } from '../ssr/preload'
 
 // Shared shop-by-category page for Emotion / Festival / Occasion — same structure, just
 // pointed at a different category type and product tag field.
@@ -14,21 +15,26 @@ export default function CategoryShop({ type, field, title, subtitle, seoTitle })
   const [searchParams] = useSearchParams()
   const { products, loading: productsLoading } = useProducts()
   const { handleAdd, toast, clearToast } = useAddToCart()
-  const [categories, setCategories] = useState([])
-  const [categoriesLoaded, setCategoriesLoaded] = useState(false)
+  // Pre-rendered pages start with the build-time category list (title, intro, FAQs in the HTML).
+  const preloaded = usePreload().categories?.[type]
+  const [categories, setCategories] = useState(() => preloaded ?? [])
+  const [categoriesLoaded, setCategoriesLoaded] = useState(!!preloaded)
 
   useEffect(() => {
     getCategories(type)
-      .then(setCategories)
-      .catch(() => setCategories([]))
+      // An outage returns [] — keep the build-time list rather than blanking the page.
+      .then(fresh => setCategories(prev => (fresh.length > 0 || !preloaded ? fresh : prev)))
+      .catch(() => { if (!preloaded) setCategories([]) })
       .finally(() => setCategoriesLoaded(true))
-  }, [type])
+  }, [type, preloaded])
 
   const basePath = `/${type.toLowerCase()}s`
   const typeLabel = `${type}s`
 
-  // Old filter URLs (/festivals?c=diwali) may be bookmarked or indexed — send them to the clean path.
-  const legacySlug = searchParams.get('c')
+  // Old filter URLs (/festivals?c=diwali, /emotions?e=happy) may be bookmarked or indexed — send
+  // them to the clean path. (A static host can't 301 on a query string; the page's canonical
+  // already points at the clean URL for crawlers.)
+  const legacySlug = searchParams.get('c') ?? searchParams.get('e')
   if (legacySlug) return <Navigate to={`${basePath}/${legacySlug}`} replace />
 
   const active = slug || 'all'

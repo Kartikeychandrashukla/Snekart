@@ -5,27 +5,33 @@ import { useProducts } from '../context/ProductsContext'
 import ProductCard, { Toast, useAddToCart } from '../components/ProductCard'
 import { categoryColor } from './Blog'
 import Seo from '../components/Seo'
+import { usePreload } from '../ssr/preload'
 
 function formatDate(iso) {
-  return new Date(iso).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })
+  // Fixed time zone: the build server (UTC) and the visitor's browser must print the same date.
+  return new Date(iso).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'Asia/Kolkata' })
 }
 
 export default function BlogPostDetail() {
   const { slug } = useParams()
   const { products } = useProducts()
   const { handleAdd, toast, clearToast } = useAddToCart()
-  const [post,    setPost]    = useState(null)
-  const [loading, setLoading] = useState(true)
+  // Pre-rendered page: start from the build-time post (same pattern as ProductDetail).
+  const preloaded = usePreload().post
+  const initial = preloaded?.slug === slug ? preloaded : null
+  const [post,    setPost]    = useState(initial)
+  const [loading, setLoading] = useState(!initial)
   const [loadFailed, setLoadFailed] = useState(false)
 
   useEffect(() => {
-    setLoading(true)
+    const showLoading = preloaded?.slug !== slug
+    if (showLoading) setLoading(true)
     setLoadFailed(false)
     getBlogPostBySlug(slug)
       .then(setPost)
-      .catch(() => setLoadFailed(true))
+      .catch(() => { if (showLoading) setLoadFailed(true) })
       .finally(() => setLoading(false))
-  }, [slug])
+  }, [slug, preloaded])
 
   if (loading) {
     return (
@@ -63,6 +69,8 @@ export default function BlogPostDetail() {
       <Seo
         title={`${post.title} – Snekart Blog`}
         description={post.excerpt}
+        image={post.image}
+        type="article"
       />
 
       <div className="max-w-3xl mx-auto px-4 sm:px-8 py-10">

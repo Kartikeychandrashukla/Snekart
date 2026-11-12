@@ -1,11 +1,14 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react'
 import { getBlogPosts } from '../services/api'
+import { usePreload } from '../ssr/preload'
 
 const BlogContext = createContext()
 
 export function BlogProvider({ children }) {
-  const [posts,   setPosts]   = useState([])
-  const [loading, setLoading] = useState(true)
+  // Pre-rendered pages start with the build-time post list (see ProductsContext).
+  const preloaded = usePreload().posts
+  const [posts,   setPosts]   = useState(() => preloaded ?? [])
+  const [loading, setLoading] = useState(!preloaded)
 
   const refetch = useCallback(() => {
     setLoading(true)
@@ -15,8 +18,12 @@ export function BlogProvider({ children }) {
   }, [])
 
   useEffect(() => {
-    refetch()
-  }, [refetch])
+    if (!preloaded) {
+      refetch()
+      return
+    }
+    getBlogPosts().then(fresh => { if (fresh.length > 0) setPosts(fresh) }).catch(() => {})
+  }, [refetch, preloaded])
 
   return (
     <BlogContext.Provider value={{ posts, loading, refetch }}>
