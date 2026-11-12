@@ -17,7 +17,7 @@
 // The build FAILS (rather than publishing a site with pages missing) if the API can't be
 // reached after all retries or returns no products/categories.
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'node:fs'
-import { dirname, join, resolve } from 'node:path'
+import { join, resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { loadEnv } from 'vite'
 
@@ -147,11 +147,20 @@ function page({ seo, html: rendered = '', preload = null }) {
   return out
 }
 
+// Render serves "/shop/x" from shop/x.html (after checking its rules), but serves a folder's
+// index.html only for "/shop/x/". So each page is written twice:
+//   dist/shop/x.html          → /shop/x   (the canonical URL)
+//   dist/shop/x/index.html    → /shop/x/  (same page; its canonical points at /shop/x)
+// A slug with no files falls through to 404.html with a real 404 — no rewrite rule is needed.
 function writePage(route, contents) {
-  const file = route === '/' ? join(DIST, 'index.html') : join(DIST, route.slice(1), 'index.html')
-  mkdirSync(dirname(file), { recursive: true })
-  writeFileSync(file, contents)
-  return file
+  if (route === '/') {
+    writeFileSync(join(DIST, 'index.html'), contents)
+    return
+  }
+  const base = join(DIST, route.slice(1))
+  mkdirSync(base, { recursive: true })
+  writeFileSync(`${base}.html`, contents)
+  writeFileSync(join(base, 'index.html'), contents)
 }
 
 const written = []

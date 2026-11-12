@@ -2,14 +2,14 @@
 //   npm run build && npm run serve:prod     → http://localhost:4173
 //
 // Mirrors how Render serves dist/ (checked against the live site on 2026-11-12):
-//   - only an exact file path is served as-is, plus a folder's index.html when the URL ends in
-//     "/" (/occasions/wedding/ works; /occasions/wedding does NOT find occasions/wedding/index.html,
-//     and /404 does not find 404.html)
-//   - a file that exists always wins (Render never applies a rule to an existing path)
-//   - otherwise the rules below, top to bottom, first match wins; ":name" matches one path
-//     segment and can be reused in the destination; "*" matches the rest of the path
-//   - Redirect → 301; Rewrite → serve the destination file with 200 (404.html + 404 if missing)
-//   - no file and no rule → dist/404.html with HTTP 404
+//   1. an exact file path is served as-is; a folder's index.html only when the URL ends in "/"
+//      (Render never applies a rule to a path where a file exists)
+//   2. otherwise the rules below, top to bottom, first match wins; ":name" matches one path
+//      segment and can be reused in the destination; "*" matches the rest of the path.
+//      Redirect → 301. Rewrite → the destination file with 200 — and if that file doesn't
+//      exist, Render answers 200 with an EMPTY body (so don't rewrite to files that may not exist)
+//   3. otherwise "<path>.html" if it exists (/shop/x → shop/x.html, /404 → 404.html)
+//   4. otherwise dist/404.html with HTTP 404
 //   - query strings are ignored for matching
 // Dev tool only; production does not run this file.
 import { createServer } from 'node:http'
@@ -19,23 +19,12 @@ import { extname, join, normalize, resolve } from 'node:path'
 const DIST = resolve('dist')
 const PORT = Number(process.env.PORT ?? 4173)
 
-const page = source => ({ source, destination: `${source}/index.html`, action: 'rewrite' })
 const shell = source => ({ source, destination: '/app-shell.html', action: 'rewrite' })
 
 // Keep in sync with "Render dashboard rules" in PRERENDER.md (same order).
+// Pre-rendered pages need no rules: they're found as <path>.html (step 3).
 export const RULES = [
   { source: '/how-it-works', destination: '/about', action: 'redirect' },
-  // Pre-rendered pages: clean URL → its index.html
-  page('/about'),
-  page('/blog'),
-  page('/emotions'),
-  page('/festivals'),
-  page('/occasions'),
-  page('/emotions/:slug'),
-  page('/festivals/:slug'),
-  page('/occasions/:slug'),
-  page('/shop/:slug'),
-  page('/blog/:slug'),
   // Client-only pages: the noindex app shell
   shell('/cart'),
   shell('/checkout'),
@@ -99,8 +88,13 @@ createServer((req, res) => {
       return res.end()
     }
     const target = fileFor(destination)
-    return target ? send(res, 200, target) : send(res, 404, join(DIST, '404.html'))
+    if (target) return send(res, 200, target)
+    res.writeHead(200) // what Render does for a rewrite to a missing file
+    return res.end()
   }
+
+  const html = pathname !== '/' && !pathname.endsWith('/') ? fileFor(`${pathname}.html`) : null
+  if (html) return send(res, 200, html)
 
   send(res, 404, join(DIST, '404.html'))
 }).listen(PORT, () => console.log(`Serving dist/ like Render at http://localhost:${PORT}`))
