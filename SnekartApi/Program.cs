@@ -45,6 +45,13 @@ builder.Services.AddHttpClient<IEmailService, EmailService>(client =>
 builder.Services.AddHttpClient<IPaymentService, PaymentService>(client =>
     client.BaseAddress = new Uri("https://api.razorpay.com/v1/"));
 
+// Rebuilds the pre-rendered frontend after product/blog/category changes (debounced) — see
+// Services/DeployHookService.cs. One instance serves as both the hosted loop and the trigger.
+builder.Services.AddHttpClient();
+builder.Services.AddSingleton<DeployHookService>();
+builder.Services.AddSingleton<IDeployHookTrigger>(sp => sp.GetRequiredService<DeployHookService>());
+builder.Services.AddHostedService(sp => sp.GetRequiredService<DeployHookService>());
+
 var allowedOrigins = (builder.Configuration["FrontendUrl"] ?? "http://localhost:5173")
     .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
 
@@ -127,6 +134,24 @@ using (var scope = app.Services.CreateScope())
 app.UseCors("ReactApp");
 app.UseRateLimiter();
 app.UseMiddleware<SessionMiddleware>();
+
+// After a successful create/update/delete of a product, blog post or category, ask for a frontend
+// rebuild so the pre-rendered pages and sitemap pick it up. Reviews (/api/products/{slug}/reviews)
+// aren't part of the pre-rendered HTML, so they don't trigger one.
+app.Use(async (context, next) =>
+{
+    await next();
+
+    var request = context.Request;
+    if (HttpMethods.IsGet(request.Method) || HttpMethods.IsHead(request.Method) || HttpMethods.IsOptions(request.Method)) return;
+    if (context.Response.StatusCode is < 200 or >= 300) return;
+
+    var path = request.Path;
+    var isContent = path.StartsWithSegments("/api/products") || path.StartsWithSegments("/api/blogposts") || path.StartsWithSegments("/api/categories");
+    if (!isContent || path.Value!.Contains("/reviews", StringComparison.OrdinalIgnoreCase)) return;
+
+    context.RequestServices.GetRequiredService<IDeployHookTrigger>().Request($"{request.Method} {path}");
+});
 
 // Lightweight keep-alive / uptime probe. Returns 200 with no DB or auth work,
 // so UptimeRobot can ping it every 5 min cheaply to stop the host idling.
